@@ -49,16 +49,18 @@ public class CustomerController {
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String name,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String oldphone){
-            customerService.updateCustomer(id, name, phone,oldphone);
+
+            Customer existingCustomer = customerService.getCustomerById(phone);
             Customer updatedCustomer = customerService.getCustomerByPhone(oldphone);
-            if(updatedCustomer != null)
+            Customer newcustomer = customerService.getCustomerByPhone(phone);
+            if(updatedCustomer != null && newcustomer == null&& existingCustomer == null)
             {
                 customerService.updateCustomer(id, name, phone,oldphone);
                 Customer customer = customerService.getCustomerByPhone(phone);
                 return Result.success(customer);
             }else
             {
-                return Result.error("更新失败,请检查您输入的信息是否正确");
+                return Result.error("更新失败,你输入的手机号或者ID可能已经被注册");
             }
     }
 

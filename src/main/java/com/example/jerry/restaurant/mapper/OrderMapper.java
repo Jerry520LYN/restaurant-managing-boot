@@ -15,14 +15,14 @@ import com.example.jerry.restaurant.pojo.order;
 public interface OrderMapper {
 
     @Select("select * from orders where order_id=#{orderId}")
-    public  order getOrderById(int orderId);
+    order getOrderById(int orderId);
     @Update("update orders set customer_id=#{customerId},table_id=#{tableId},total_amount=#{totalAmount} where order_id=#{orderId}")
-    public  order updateOrder(int orderId, int customerId, int tableId, BigDecimal totalAmount);
+    void updateOrder(int orderId, int customerId, int tableId, BigDecimal totalAmount);
 
     @Insert("insert into orders (order_id,customer_id,table_id,total_amount) values (#{orderId},#{customerId},#{tableId},#{totalAmount})")
     @Options(useGeneratedKeys = true, keyProperty = "orderId")
-    public  int addOrder(order order);
+    int addOrder(order order);
 
     @Delete("delete from orders where order_id= #{orderId}")
-    public  String deleteOrder(int orderId);
+    void deleteOrder(int orderId);
 }

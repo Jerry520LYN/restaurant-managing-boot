@@ -19,6 +19,11 @@ public class CustomerServelmpl implements CustomerService {
     }
 
     @Override
+    public Customer getCustomerById(String id) {
+        return customerMapper.getCustomerById(id);
+    }
+
+    @Override
     public Customer addCustomer(String id,String name, String phone) {
         Customer  customer = new Customer(id,name, phone);
         customerMapper.addCustomer(customer);

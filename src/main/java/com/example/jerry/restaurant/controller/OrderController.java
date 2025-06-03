@@ -41,8 +41,16 @@ public class OrderController {
        order existorder = orderService.getOrderById(orderId);
        if(existorder != null)
        return Result.error("该订单ID已存在");
-       orderService.addOrder(orderId, customerId, tableId, totalAmount);
-       return Result.success(orderService.getOrderById(orderId));
+    //    orderService.addOrder(orderId, customerId, tableId, totalAmount);
+    //    return Result.success(orderService.getOrderById(orderId));
+       try {
+            order addedOrder = orderService.addOrder(orderId, customerId, tableId, totalAmount);
+            return Result.success(addedOrder);
+        } catch (RuntimeException e) {
+            // 捕获服务层抛出的异常
+            //这里直接用自己的提示方法
+            return Result.error("请检查客人或者餐桌是否存在");
+        }
     }
 
     @DeleteMapping("/deleteOrder")
@@ -61,8 +69,8 @@ public class OrderController {
        order existorder = orderService.getOrderById(orderId);
        if(existorder == null)
        return Result.error("该订单ID不存在");
-       order updateOrder = orderService.updateOrder(orderId, customerId, tableId, totalAmount);
-       return Result.success(updateOrder);
+       orderService.updateOrder(orderId, customerId, tableId, totalAmount);
+       return Result.success(orderService.getOrderById(orderId));
     }
     
     

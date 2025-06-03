@@ -15,6 +15,9 @@ import com.example.jerry.restaurant.pojo.Customer;
 public interface CustomerMapper {
     @Select("select * from customer where phone=#{phone}")
     public Customer getCustomerByPhone(String phone);
+
+    @Select("select * from customer where customer_id= #{id}")
+    public Customer getCustomerById(String id);
     @Insert ("insert into customer (customer_id,name,phone,create_time)"+
     " values (#{customer_id},#{name},#{phone},now())")
     public void addCustomer(Customer customer);
