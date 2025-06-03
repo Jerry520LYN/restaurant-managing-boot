@@ -75,7 +75,7 @@ public class OrderController {
     
     
     @GetMapping("/getOrderByID")
-    public Result<order> getMethodName(@RequestParam int orderId) {
+    public Result<order> getOrderByID(@RequestParam int orderId) {
         return Result.success(orderService.getOrderById(orderId));
     }
     
