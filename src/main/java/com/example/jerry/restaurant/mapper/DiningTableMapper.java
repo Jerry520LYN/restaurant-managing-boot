@@ -18,4 +18,18 @@ public interface DiningTableMapper {
 
     @Delete("DELETE FROM dining_table WHERE table_id = #{tableId}")
     void deleteTable(Integer tableId);
+
+    //这里要返回餐桌的数量而不是*
+    @Select("select COUNT(*) from calling_number where table_status = '空' and capacity = 2")
+    public int getNumber2();
+    @Select("select COUNT(*) from calling_number where table_status = '空' and capacity = 4")
+    public int getNumber4();
+    @Select("select COUNT(*) from calling_number where table_status = '空' and capacity = 8")
+    public int getNumber8();
+
+    @Select("select COUNT(*) from calling_number where table_status = '空'")
+    public int getNumber();
+
+    @Select("SELECT COUNT(*) FROM dining_table WHERE capacity = #{capacity}")
+    public int getTableBycapacity(Integer capacity);
 }
