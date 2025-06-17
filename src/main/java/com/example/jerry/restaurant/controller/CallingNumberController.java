@@ -18,7 +18,7 @@ public class CallingNumberController {
     private CallingNumberService callingNumberService;
 
     @GetMapping("/getcallingnumber")
-    public Result<DiningTable> getMethodName(@RequestParam int proplenumber) {
+    public Result<DiningTable> getMethodName(@RequestParam int peoplenumber) {
 
         if()
             return Result.error("无需叫号");
