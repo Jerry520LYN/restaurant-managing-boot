@@ -27,7 +27,7 @@ public class CustomerController {
     
     @PostMapping("/addCustomer")
     public Result<Customer> addCustomer(
-        @RequestParam @Pattern(regexp = "^[12].*") String id,
+        @RequestParam @Pattern(regexp = "^[012345].*") String id,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String name,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone){
         Customer existingCustomer = customerService.getCustomerByPhone(phone);

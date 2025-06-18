@@ -18,6 +18,10 @@ public interface CustomerMapper {
 
     @Select("select * from customer where customer_id= #{id}")
     public Customer getCustomerById(String id);
+    
+    @Select("select * from customer where customer_id= #{id}")
+    public Customer getCustomerById(int id);
+    
     @Insert ("insert into customer (customer_id,name,phone,create_time)"+
     " values (#{customer_id},#{name},#{phone},now())")
     public void addCustomer(Customer customer);

@@ -9,6 +9,9 @@ public interface MenuMapper {
     @Select("SELECT * FROM menu WHERE dish_id = #{dishId}")
     Menu getMenuById(String dishId);
 
+    @Select("SELECT * FROM menu WHERE dish_id = #{dishId}")
+    Menu getDishById(int dishId);
+
     @Insert("INSERT INTO menu (dish_id, dish_name, price, description) VALUES (#{dishId}, #{dishName}, #{price}, #{description})")
     void addMenu(Menu menu);
 

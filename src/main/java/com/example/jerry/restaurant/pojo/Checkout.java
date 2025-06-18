@@ -1,42 +1,50 @@
 package com.example.jerry.restaurant.pojo;
-import java.sql.Date;
-
-import org.springframework.context.annotation.Primary;
-
-import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+
 @NoArgsConstructor
 @AllArgsConstructor
-public class order {
+public class Checkout {
     
     private int orderId;
-
-    @NotNull(message = "Customer ID cannot be null")
+    private String orderNumber;  // 16位订单编号
     private int customerId;
-    @NotNull(message = "Table ID cannot be null")
     private int tableId;
-    @NotNull(message = "Order time cannot be null")
     private Date orderTime;
-    @NotNull(message = "Total amount cannot be null")
     private BigDecimal totalAmount;
-
-    private String status = "未结账";
+    private String status;
+    private BigDecimal discount;  // 折扣率
+    private BigDecimal finalAmount;  // 最终金额（折扣后）
     
-    public order(int orderId, int customerId, int tableId, BigDecimal totalAmount){
+    public Checkout(int orderId, String orderNumber, int customerId, int tableId, 
+                   BigDecimal totalAmount, BigDecimal discount) {
         this.orderId = orderId;
+        this.orderNumber = orderNumber;
         this.customerId = customerId;
         this.tableId = tableId;
         this.totalAmount = totalAmount;
+        this.discount = discount;
+        this.status = "未结账";
     }
-     public int getOrderId() {
+    
+    // Getter 和 Setter 方法
+    public int getOrderId() {
         return orderId;
     }
 
     public void setOrderId(int orderId) {
         this.orderId = orderId;
+    }
+
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
     }
 
     public int getCustomerId() {
@@ -79,17 +87,34 @@ public class order {
         this.status = status;
     }
 
-    // toString method
+    public BigDecimal getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
+    }
+
+    public BigDecimal getFinalAmount() {
+        return finalAmount;
+    }
+
+    public void setFinalAmount(BigDecimal finalAmount) {
+        this.finalAmount = finalAmount;
+    }
+
     @Override
     public String toString() {
-        return "Order{" +
+        return "Checkout{" +
                 "orderId=" + orderId +
+                ", orderNumber='" + orderNumber + '\'' +
                 ", customerId=" + customerId +
                 ", tableId=" + tableId +
                 ", orderTime=" + orderTime +
                 ", totalAmount=" + totalAmount +
                 ", status='" + status + '\'' +
+                ", discount=" + discount +
+                ", finalAmount=" + finalAmount +
                 '}';
     }
-
-}
+} 

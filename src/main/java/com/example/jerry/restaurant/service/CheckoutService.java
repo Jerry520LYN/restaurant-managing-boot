@@ -1,0 +1,35 @@
+package com.example.jerry.restaurant.service;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import com.example.jerry.restaurant.pojo.Checkout;
+import com.example.jerry.restaurant.pojo.OrderDetail;
+import com.example.jerry.restaurant.pojo.Result;
+
+public interface CheckoutService {
+    
+    // 创建订单
+    Result<Checkout> createOrder(int tableId, int customerId, int peopleCount);
+    
+    // 添加菜品到订单
+    Result<String> addDishToOrder(int orderId, int dishId, int quantity);
+    
+    // 从订单中移除菜品
+    Result<String> removeDishFromOrder(int orderId, int dishId);
+    
+    // 修改菜品数量
+    Result<String> updateDishQuantity(int orderId, int dishId, int quantity);
+    
+    // 结账
+    Result<Checkout> checkout(int orderId);
+    
+    // 根据时间段查询订单
+    Result<List<Checkout>> getOrdersByTimeRange(Date startTime, Date endTime);
+    
+    // 获取订单详情
+    Result<List<OrderDetail>> getOrderDetails(int orderId);
+    
+    // 获取最受欢迎菜品
+    Result<List<Object>> getPopularDishes(Date startTime, Date endTime);
+} 
