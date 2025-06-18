@@ -6,7 +6,7 @@ import com.example.jerry.restaurant.pojo.CallingNumber;
 
 public interface CallingNumberService {
 
-    CallingNumber getResult(int peoplenumber);
+    CallingNumber getResult(String phone, int peoplenumber);
 
     List<CallingNumber> getResultList();
 

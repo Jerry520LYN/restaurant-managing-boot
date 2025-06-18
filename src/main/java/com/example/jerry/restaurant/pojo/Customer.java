@@ -3,7 +3,7 @@ package com.example.jerry.restaurant.pojo;
 import java.sql.Date;
 
 public class Customer {
-    private String customer_id;
+    private int customer_id;
     private String name;
     private String phone;
     private Date create_time;
@@ -11,18 +11,18 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(String customerId, String name, String phone) {
+    public Customer(int customerId, String name, String phone) {
         this.customer_id = customerId;
         this.name = name;
         this.phone = phone;
     }
 
-    public String getCustomerId() {
+    public int getCustomerId() {
         return customer_id;
     }
 
     public void setCustomerId(String customerId) {
-        this.customer_id = customerId;
+        this.customer_id = customer_id;
     }
 
     public String getName() {

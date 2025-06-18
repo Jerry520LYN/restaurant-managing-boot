@@ -15,9 +15,6 @@ import com.example.jerry.restaurant.pojo.Customer;
 public interface CustomerMapper {
     @Select("select * from customer where phone=#{phone}")
     public Customer getCustomerByPhone(String phone);
-
-    @Select("select * from customer where customer_id= #{id}")
-    public Customer getCustomerById(String id);
     
     @Select("select * from customer where customer_id= #{id}")
     public Customer getCustomerById(int id);

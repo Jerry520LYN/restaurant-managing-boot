@@ -27,7 +27,7 @@ public class CustomerController {
     
     @PostMapping("/addCustomer")
     public Result<Customer> addCustomer(
-        @RequestParam @Pattern(regexp = "^[012345].*") String id,
+        @RequestParam @Pattern(regexp = "^[012345].*") int id,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String name,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone){
         Customer existingCustomer = customerService.getCustomerByPhone(phone);
@@ -45,12 +45,12 @@ public class CustomerController {
 
     @PostMapping("/updateCustomer")
     public Result<Customer> updateCustomer(
-        @RequestParam @Pattern(regexp = "^\\S{9}$") String id,
+        @RequestParam @Pattern(regexp = "^\\S{9}$") int id,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String name,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String oldphone){
 
-            Customer existingCustomer = customerService.getCustomerById(phone);
+            Customer existingCustomer = customerService.getCustomerById(id);
             Customer updatedCustomer = customerService.getCustomerByPhone(oldphone);
             Customer newcustomer = customerService.getCustomerByPhone(phone);
             if(updatedCustomer != null && newcustomer == null&& existingCustomer == null)

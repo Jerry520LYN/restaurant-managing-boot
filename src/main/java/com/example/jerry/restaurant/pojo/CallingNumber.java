@@ -12,6 +12,7 @@ public class CallingNumber {
     private int tableId;// 叫到的餐桌ID
     private LocalDateTime time; // 需要等待的时间
     private int peopleNumber;//需要等待的人数
+    private String phone; // 顾客手机号
 
     public int getDiningTableNumber() {
         return diningTableNumber;
@@ -51,5 +52,13 @@ public class CallingNumber {
 
     public void setCallingNumberId(int callingNumberId) {
         this.callingNumberId = callingNumberId;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

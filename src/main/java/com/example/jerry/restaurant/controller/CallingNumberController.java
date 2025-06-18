@@ -3,9 +3,7 @@ package com.example.jerry.restaurant.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import com.example.jerry.restaurant.pojo.CallingNumber;
-import com.example.jerry.restaurant.pojo.DiningTable;
 import com.example.jerry.restaurant.pojo.Result;
 import com.example.jerry.restaurant.service.CallingNumberService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,13 +19,12 @@ public class CallingNumberController {
     private CallingNumberService callingNumberService;
 
     @PostMapping("/getcallingnumber")
-    public Result<CallingNumber> getMethodName(@RequestParam int peoplenumber) {
-
-        if(callingNumberService.getResult(peoplenumber)==null)
+    public Result<CallingNumber> getMethodName(@RequestParam String phone, @RequestParam int peoplenumber) {
+        if(callingNumberService.getResult(phone, peoplenumber)==null)
             return Result.error("无需叫号");
         else{
-            CallingNumber callingNumber = callingNumberService.getResult(peoplenumber);
-        return Result.success(callingNumber);
+            CallingNumber callingNumber = callingNumberService.getResult(phone, peoplenumber);
+            return Result.success(callingNumber);
         }
     }
 

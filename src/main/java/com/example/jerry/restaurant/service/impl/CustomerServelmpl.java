@@ -19,19 +19,19 @@ public class CustomerServelmpl implements CustomerService {
     }
 
     @Override
-    public Customer getCustomerById(String id) {
+    public Customer getCustomerById(int id) {
         return customerMapper.getCustomerById(id);
     }
 
     @Override
-    public Customer addCustomer(String id,String name, String phone) {
+    public Customer addCustomer(int id,String name, String phone) {
         Customer  customer = new Customer(id,name, phone);
         customerMapper.addCustomer(customer);
         return customerMapper.getCustomerByPhone(phone);
     }
     
     @Override
-    public Customer updateCustomer(String id,String name, String phone,String oldphone) {
+    public Customer updateCustomer(int id,String name, String phone,String oldphone) {
         Customer  customer = new Customer(id,name, phone);
         customerMapper.updateCustomer(customer,oldphone);
         return customerMapper.getCustomerByPhone(phone);

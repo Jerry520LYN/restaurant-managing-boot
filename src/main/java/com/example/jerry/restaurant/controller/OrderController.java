@@ -13,8 +13,6 @@ import com.example.jerry.restaurant.pojo.Result;
 import com.example.jerry.restaurant.pojo.order;
 import com.example.jerry.restaurant.service.OrderService;
 
-import jakarta.validation.constraints.Pattern;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -5,11 +5,11 @@ import com.example.jerry.restaurant.pojo.Customer;
 public interface CustomerService {
     Customer  getCustomerByPhone(String phone);
 
-    Customer  addCustomer(String id,String name, String phone);
+    Customer  addCustomer(int id,String name, String phone);
     
-    Customer  updateCustomer(String id,String name, String phone,String oldphone);
+    Customer  updateCustomer(int id,String name, String phone,String oldphone);
 
     String deleteCustomer(String phone);
 
-    Customer  getCustomerById(String id);
+    Customer  getCustomerById(int id);
 }

@@ -20,9 +20,9 @@ public class CallingNumberServelmpl implements CallingNumberService{
     private DiningTableMapper diningTableMapper;
     
     // 三个不同人数的等待队列
-    private final Queue<Integer> queue2 = new ConcurrentLinkedQueue<>(); // 2人桌等待队列
-    private final Queue<Integer> queue4 = new ConcurrentLinkedQueue<>(); // 4人桌等待队列
-    private final Queue<Integer> queue8 = new ConcurrentLinkedQueue<>(); // 8人桌等待队列
+    private final Queue<String> queue2 = new ConcurrentLinkedQueue<>(); // 2人桌等待队列（手机号）
+    private final Queue<String> queue4 = new ConcurrentLinkedQueue<>(); // 4人桌等待队列（手机号）
+    private final Queue<String> queue8 = new ConcurrentLinkedQueue<>(); // 8人桌等待队列（手机号）
     
     // 叫号队列
     private final Queue<CallingNumber> callingQueue = new ConcurrentLinkedQueue<>();
@@ -38,33 +38,41 @@ public class CallingNumberServelmpl implements CallingNumberService{
     }
     
     @Override
-    public CallingNumber getResult(int peopleNumber) {
-        if (peopleNumber <= 0) {
+    public CallingNumber getResult(String phone, int peopleNumber) {
+        if (peopleNumber <= 0 || phone == null || phone.isEmpty()) {
             return null;
         }
-        
         LocalDateTime now = LocalDateTime.now();
-        
-        // 判断是否在营业时间
         if (!isBusinessHours(now)) {
             return null;
         }
-        
-        // 检查并清理已完成的叫号（餐桌已空）
         checkAndCleanCompletedCallings();
-        
-        // 根据人数确定应该使用哪个队列
-        Queue<Integer> targetQueue = getTargetQueue(peopleNumber);
+        Queue<String> targetQueue = getTargetQueue(peopleNumber);
         if (targetQueue == null) {
-            return null; // 不支持的人数
+            return null;
         }
-        
-        // 将顾客添加到对应队列
-        targetQueue.add(peopleNumber);
-        callingIdCounter++;
-        
-        // 尝试分配餐桌
-        return tryAllocateTable(peopleNumber, now);
+        // 如果手机号已在队列，直接返回当前叫号信息
+        if (targetQueue.contains(phone)) {
+            int position = getUserPosition(targetQueue, phone);
+            int diningTableNumber = getRemainingTables(getTableCapacity(peopleNumber));
+            return findCallingNumberByPhone(phone, peopleNumber, diningTableNumber, position);
+        } else {
+            // 新叫号
+            targetQueue.add(phone);
+            callingIdCounter++;
+            int position = targetQueue.size() - 1;
+            int diningTableNumber = getRemainingTables(getTableCapacity(peopleNumber));
+            CallingNumber callingNumber = new CallingNumber(
+                callingIdCounter,
+                diningTableNumber,
+                -1, // 不分配餐桌
+                now,
+                position,
+                phone
+            );
+            callingQueue.add(callingNumber);
+            return callingNumber;
+        }
     }
     
     /**
@@ -111,17 +119,17 @@ public class CallingNumberServelmpl implements CallingNumberService{
      * 根据餐桌容量计算等待人数
      */
     private int calculateWaitingPeopleByCapacity(int capacity) {
-        Queue<Integer> targetQueue = getQueueByCapacity(capacity);
+        Queue<String> targetQueue = getQueueByCapacity(capacity);
         if (targetQueue == null) {
             return 0;
         }
-        return targetQueue.stream().mapToInt(Integer::intValue).sum();
+        return targetQueue.size();
     }
     
     /**
      * 根据容量获取对应的队列
      */
-    private Queue<Integer> getQueueByCapacity(int capacity) {
+    private Queue<String> getQueueByCapacity(int capacity) {
         switch (capacity) {
             case 2:
                 return queue2;
@@ -145,7 +153,7 @@ public class CallingNumberServelmpl implements CallingNumberService{
     /**
      * 根据人数获取对应的队列
      */
-    private Queue<Integer> getTargetQueue(int peopleNumber) {
+    private Queue<String> getTargetQueue(int peopleNumber) {
         if (peopleNumber >= 1 && peopleNumber <= 2) {
             return queue2;
         } else if (peopleNumber >= 3 && peopleNumber <= 4) {
@@ -154,71 +162,6 @@ public class CallingNumberServelmpl implements CallingNumberService{
             return queue8;
         }
         return null;
-    }
-    
-    /**
-     * 尝试分配餐桌
-     */
-    private CallingNumber tryAllocateTable(int peopleNumber, LocalDateTime now) {
-        int capacity = getTableCapacity(peopleNumber);
-        int availableTableId = getAvailableTableId(capacity);
-        
-        if (availableTableId > 0) {
-            // 分配餐桌成功
-            int callingId = callingIdCounter;
-            int remainingTables = getRemainingTables(capacity);
-            int waitingPeople = calculateWaitingPeople(peopleNumber);
-            
-            // 创建叫号对象
-            CallingNumber callingNumber = new CallingNumber(
-                callingId, 
-                remainingTables, 
-                availableTableId, 
-                now, 
-                waitingPeople
-            );
-            
-            // 添加到叫号队列
-            callingQueue.add(callingNumber);
-            
-            // 从等待队列中移除该顾客
-            removeFromQueue(peopleNumber);
-            
-            // 更新餐桌状态为已占用
-            diningTableMapper.updateStatus(availableTableId, "占用");
-            
-            return callingNumber;
-        } else {
-            // 没有可用餐桌，返回等待信息
-            int callingId = callingIdCounter;
-            int remainingTables = getRemainingTables(capacity);
-            int waitingPeople = calculateWaitingPeople(peopleNumber);
-            
-            CallingNumber callingNumber = new CallingNumber(
-                callingId, 
-                remainingTables, 
-                -1, // 没有分配到餐桌
-                now, 
-                waitingPeople
-            );
-            
-            callingQueue.add(callingNumber);
-            return callingNumber;
-        }
-    }
-    
-    /**
-     * 根据人数确定餐桌容量
-     */
-    private int getTableCapacity(int peopleNumber) {
-        if (peopleNumber >= 1 && peopleNumber <= 2) {
-            return 2;
-        } else if (peopleNumber >= 3 && peopleNumber <= 4) {
-            return 4;
-        } else if (peopleNumber >= 5 && peopleNumber <= 8) {
-            return 8;
-        }
-        return 0;
     }
     
     /**
@@ -246,27 +189,66 @@ public class CallingNumberServelmpl implements CallingNumberService{
     }
     
     /**
-     * 计算等待人数
+     * 获取手机号在队列中的排队位置（前面有多少人）
      */
-    private int calculateWaitingPeople(int currentPeopleNumber) {
-        int capacity = getTableCapacity(currentPeopleNumber);
-        Queue<Integer> targetQueue = getTargetQueue(currentPeopleNumber);
-        
-        if (targetQueue == null) {
-            return 0;
+    private int getUserPosition(Queue<String> queue, String phone) {
+        int pos = 0;
+        for (String p : queue) {
+            if (p.equals(phone)) {
+                return pos;
+            }
+            pos++;
         }
-        
-        // 计算该队列中所有等待的人数
-        return targetQueue.stream().mapToInt(Integer::intValue).sum();
+        return -1;
+    }
+    
+    /**
+     * 查找当前叫号队列中该手机号的叫号信息
+     */
+    private CallingNumber findCallingNumberByPhone(String phone, int peopleNumber, int diningTableNumber, int position) {
+        for (CallingNumber cn : callingQueue) {
+            if (phone.equals(cn.getPhone()) && getTableCapacity(peopleNumber) == getTableCapacity(cn.getPeopleNumber())) {
+                // 更新实时信息
+                cn.setDiningTableNumber(diningTableNumber);
+                cn.setPeopleNumber(position);
+                cn.setTime(LocalDateTime.now());
+                return cn;
+            }
+        }
+        // 没找到则新建
+        CallingNumber callingNumber = new CallingNumber(
+            callingIdCounter,
+            diningTableNumber,
+            -1,
+            LocalDateTime.now(),
+            position,
+            phone
+        );
+        callingQueue.add(callingNumber);
+        return callingNumber;
+    }
+    
+    /**
+     * 根据人数确定餐桌容量
+     */
+    private int getTableCapacity(int peopleNumber) {
+        if (peopleNumber >= 1 && peopleNumber <= 2) {
+            return 2;
+        } else if (peopleNumber >= 3 && peopleNumber <= 4) {
+            return 4;
+        } else if (peopleNumber >= 5 && peopleNumber <= 8) {
+            return 8;
+        }
+        return 0;
     }
     
     /**
      * 从队列中移除顾客
      */
-    private void removeFromQueue(int peopleNumber) {
-        Queue<Integer> targetQueue = getTargetQueue(peopleNumber);
+    private void removeFromQueue(String phone, int peopleNumber) {
+        Queue<String> targetQueue = getTargetQueue(peopleNumber);
         if (targetQueue != null) {
-            targetQueue.remove(peopleNumber);
+            targetQueue.remove(phone);
         }
     }
 }
