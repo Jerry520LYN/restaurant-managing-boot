@@ -119,7 +119,7 @@ public class CheckoutController {
      * @return 热门菜品列表
      */
     @GetMapping("/popular-dishes")
-    public Result<List<Object>> getPopularDishes(
+    public Result<List<Map<String, Object>>> getPopularDishes(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime) {
         return checkoutService.getPopularDishes(startTime, endTime);

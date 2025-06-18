@@ -3,7 +3,6 @@ package com.example.jerry.restaurant.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.Iterator;
 
@@ -13,28 +12,25 @@ import com.example.jerry.restaurant.mapper.DiningTableMapper;
 import com.example.jerry.restaurant.pojo.CallingNumber;
 import com.example.jerry.restaurant.pojo.DiningTable;
 import com.example.jerry.restaurant.service.CallingNumberService;
+import com.example.jerry.restaurant.pojo.CallingQueueManager;
 
 @Service
 public class CallingNumberServelmpl implements CallingNumberService{
     @Autowired
     private DiningTableMapper diningTableMapper;
     
-    // 三个不同人数的等待队列
-    private final Queue<String> queue2 = new ConcurrentLinkedQueue<>(); // 2人桌等待队列（手机号）
-    private final Queue<String> queue4 = new ConcurrentLinkedQueue<>(); // 4人桌等待队列（手机号）
-    private final Queue<String> queue8 = new ConcurrentLinkedQueue<>(); // 8人桌等待队列（手机号）
-    
-    // 叫号队列
-    private final Queue<CallingNumber> callingQueue = new ConcurrentLinkedQueue<>();
+    private static final CallingQueueManager queueManager = new CallingQueueManager();
     
     // 叫号ID计数器
     private int callingIdCounter = 0;
     
     @Override
     public List<CallingNumber> getResultList() {
-        // 查询前先清理已完成的叫号
-        checkAndCleanCompletedCallings();
-        return callingQueue.stream().collect(Collectors.toList());
+        // 实时更新每条记录的diningTableNumber和estimatedWaitingTime
+        for (CallingNumber cn : queueManager.getCallingQueue()) {
+            updateCallingNumberInfo(cn);
+        }
+        return queueManager.getCallingQueue().stream().collect(Collectors.toList());
     }
     
     @Override
@@ -47,30 +43,39 @@ public class CallingNumberServelmpl implements CallingNumberService{
             return null;
         }
         checkAndCleanCompletedCallings();
-        Queue<String> targetQueue = getTargetQueue(peopleNumber);
+        int capacity = getTableCapacity(peopleNumber);
+        Queue<String> targetQueue = queueManager.getQueueByCapacity(capacity);
         if (targetQueue == null) {
             return null;
         }
         // 如果手机号已在队列，直接返回当前叫号信息
         if (targetQueue.contains(phone)) {
-            int position = getUserPosition(targetQueue, phone);
-            int diningTableNumber = getRemainingTables(getTableCapacity(peopleNumber));
-            return findCallingNumberByPhone(phone, peopleNumber, diningTableNumber, position);
+            CallingNumber cn = findCallingNumberByPhone(phone, capacity);
+            if (cn != null) {
+                updateCallingNumberInfo(cn);
+                return cn;
+            } else {
+                // 没找到叫号对象，兜底返回null或新建对象
+                return null;
+            }
         } else {
-            // 新叫号
             targetQueue.add(phone);
             callingIdCounter++;
-            int position = targetQueue.size() - 1;
-            int diningTableNumber = getRemainingTables(getTableCapacity(peopleNumber));
+            int assignedTableId = -1;
+            Integer availableTableId = diningTableMapper.getAvailableTableId(capacity);
+            if (availableTableId != null && availableTableId > 0) {
+                assignedTableId = availableTableId;
+            }
             CallingNumber callingNumber = new CallingNumber(
                 callingIdCounter,
-                diningTableNumber,
-                -1, // 不分配餐桌
-                now,
-                position,
+                targetQueue.size() - 1,
+                assignedTableId,
+                0,
+                capacity,
                 phone
             );
-            callingQueue.add(callingNumber);
+            updateCallingNumberInfo(callingNumber);
+            queueManager.getCallingQueue().add(callingNumber);
             return callingNumber;
         }
     }
@@ -79,7 +84,7 @@ public class CallingNumberServelmpl implements CallingNumberService{
      * 检查并清理已完成的叫号（餐桌已空）
      */
     private void checkAndCleanCompletedCallings() {
-        Iterator<CallingNumber> iterator = callingQueue.iterator();
+        Iterator<CallingNumber> iterator = queueManager.getCallingQueue().iterator();
         while (iterator.hasNext()) {
             CallingNumber calling = iterator.next();
             // 只检查有餐桌ID的叫号（已分配餐桌的）
@@ -101,17 +106,9 @@ public class CallingNumberServelmpl implements CallingNumberService{
      * 更新所有叫号信息
      */
     private void updateAllCallingNumbers() {
-        for (CallingNumber calling : callingQueue) {
-            // 重新计算等待人数
-            int waitingPeople = calculateWaitingPeopleByCapacity(getTableCapacity(calling.getPeopleNumber()));
-            
-            // 重新获取剩余餐桌数量
-            int remainingTables = getRemainingTables(getTableCapacity(calling.getPeopleNumber()));
-            
-            // 更新叫号信息
-            calling.setDiningTableNumber(remainingTables);
-            calling.setPeopleNumber(waitingPeople);
-            calling.setTime(LocalDateTime.now()); // 更新时间
+        for (CallingNumber calling : queueManager.getCallingQueue()) {
+            // 新结构下无需更新peopleNumber和time，diningTableNumber和estimatedWaitingTime已在updateCallingNumberInfo中实时更新
+            updateCallingNumberInfo(calling);
         }
     }
     
@@ -119,27 +116,11 @@ public class CallingNumberServelmpl implements CallingNumberService{
      * 根据餐桌容量计算等待人数
      */
     private int calculateWaitingPeopleByCapacity(int capacity) {
-        Queue<String> targetQueue = getQueueByCapacity(capacity);
+        Queue<String> targetQueue = queueManager.getQueueByCapacity(capacity);
         if (targetQueue == null) {
             return 0;
         }
         return targetQueue.size();
-    }
-    
-    /**
-     * 根据容量获取对应的队列
-     */
-    private Queue<String> getQueueByCapacity(int capacity) {
-        switch (capacity) {
-            case 2:
-                return queue2;
-            case 4:
-                return queue4;
-            case 8:
-                return queue8;
-            default:
-                return null;
-        }
     }
     
     /**
@@ -155,11 +136,11 @@ public class CallingNumberServelmpl implements CallingNumberService{
      */
     private Queue<String> getTargetQueue(int peopleNumber) {
         if (peopleNumber >= 1 && peopleNumber <= 2) {
-            return queue2;
+            return queueManager.getQueueByCapacity(2);
         } else if (peopleNumber >= 3 && peopleNumber <= 4) {
-            return queue4;
+            return queueManager.getQueueByCapacity(4);
         } else if (peopleNumber >= 5 && peopleNumber <= 8) {
-            return queue8;
+            return queueManager.getQueueByCapacity(8);
         }
         return null;
     }
@@ -205,27 +186,13 @@ public class CallingNumberServelmpl implements CallingNumberService{
     /**
      * 查找当前叫号队列中该手机号的叫号信息
      */
-    private CallingNumber findCallingNumberByPhone(String phone, int peopleNumber, int diningTableNumber, int position) {
-        for (CallingNumber cn : callingQueue) {
-            if (phone.equals(cn.getPhone()) && getTableCapacity(peopleNumber) == getTableCapacity(cn.getPeopleNumber())) {
-                // 更新实时信息
-                cn.setDiningTableNumber(diningTableNumber);
-                cn.setPeopleNumber(position);
-                cn.setTime(LocalDateTime.now());
+    private CallingNumber findCallingNumberByPhone(String phone, int capacity) {
+        for (CallingNumber cn : queueManager.getCallingQueue()) {
+            if (phone.equals(cn.getPhone()) && cn.getCapacity() == capacity && cn.getTableId() == -1) {
                 return cn;
             }
         }
-        // 没找到则新建
-        CallingNumber callingNumber = new CallingNumber(
-            callingIdCounter,
-            diningTableNumber,
-            -1,
-            LocalDateTime.now(),
-            position,
-            phone
-        );
-        callingQueue.add(callingNumber);
-        return callingNumber;
+        return null;
     }
     
     /**
@@ -249,6 +216,41 @@ public class CallingNumberServelmpl implements CallingNumberService{
         Queue<String> targetQueue = getTargetQueue(peopleNumber);
         if (targetQueue != null) {
             targetQueue.remove(phone);
+        }
+    }
+    
+    // 更新叫号信息（位置、预估等待时间）
+    private void updateCallingNumberInfo(CallingNumber cn) {
+        if (cn.getTableId() > 0) {
+            cn.setDiningTableNumber(0);
+            cn.setEstimatedWaitingTime(0);
+        } else {
+            int position = getQueuePosition(cn.getPhone(), cn.getCapacity());
+            cn.setDiningTableNumber(position);
+            cn.setEstimatedWaitingTime(position * getWaitTimePerTable(cn.getCapacity()));
+        }
+    }
+    
+    // 获取手机号在队列中的排队位置
+    private int getQueuePosition(String phone, int capacity) {
+        Queue<String> queue = queueManager.getQueueByCapacity(capacity);
+        int pos = 0;
+        for (String p : queue) {
+            if (p.equals(phone)) {
+                return pos;
+            }
+            pos++;
+        }
+        return -1;
+    }
+    
+    // 获取每桌预估等待时间
+    private int getWaitTimePerTable(int capacity) {
+        switch (capacity) {
+            case 2: return 30;
+            case 4: return 60;
+            case 8: return 90;
+            default: return 0;
         }
     }
 }

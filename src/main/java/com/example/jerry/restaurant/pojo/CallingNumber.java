@@ -10,8 +10,8 @@ public class CallingNumber {
     private int callingNumberId;//叫号单子的Id
     private int diningTableNumber; // 剩余餐桌数量（正的不用等，负的需要等）
     private int tableId;// 叫到的餐桌ID
-    private LocalDateTime time; // 需要等待的时间
-    private int peopleNumber;//需要等待的人数
+    private int estimatedWaitingTime; // 预估等待时间（分钟）
+    private int capacity; // 餐桌容量（2/4/8）
     private String phone; // 顾客手机号
 
     public int getDiningTableNumber() {
@@ -30,20 +30,20 @@ public class CallingNumber {
         this.tableId = tableId;
     }
 
-    public LocalDateTime getTime() {
-        return time;
+    public int getEstimatedWaitingTime() {
+        return estimatedWaitingTime;
     }
 
-    public void setTime(LocalDateTime time) {
-        this.time = time;
+    public void setEstimatedWaitingTime(int estimatedWaitingTime) {
+        this.estimatedWaitingTime = estimatedWaitingTime;
     }
 
-    public int getPeopleNumber() {
-        return peopleNumber;
+    public int getCapacity() {
+        return capacity;
     }
 
-    public void setPeopleNumber(int peopleNumber) {
-        this.peopleNumber = peopleNumber;
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
     public int getCallingNumberId() {

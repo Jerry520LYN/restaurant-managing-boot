@@ -3,6 +3,8 @@ package com.example.jerry.restaurant.service;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import com.example.jerry.restaurant.pojo.Checkout;
 import com.example.jerry.restaurant.pojo.OrderDetail;
 import com.example.jerry.restaurant.pojo.Result;
@@ -31,5 +33,5 @@ public interface CheckoutService {
     Result<List<OrderDetail>> getOrderDetails(int orderId);
     
     // 获取最受欢迎菜品
-    Result<List<Object>> getPopularDishes(Date startTime, Date endTime);
+    Result<List<Map<String, Object>>> getPopularDishes(Date startTime, Date endTime);
 } 

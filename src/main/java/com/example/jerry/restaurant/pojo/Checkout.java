@@ -10,7 +10,7 @@ import lombok.AllArgsConstructor;
 public class Checkout {
     
     private int orderId;
-    private String orderNumber;  // 16位订单编号
+    private String orderNumber;  // 订单编号
     private int customerId;
     private int tableId;
     private Date orderTime;

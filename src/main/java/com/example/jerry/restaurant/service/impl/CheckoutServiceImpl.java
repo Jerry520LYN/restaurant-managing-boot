@@ -23,6 +23,8 @@ import com.example.jerry.restaurant.pojo.DiningTable;
 import com.example.jerry.restaurant.pojo.Customer;
 import com.example.jerry.restaurant.pojo.Result;
 import com.example.jerry.restaurant.service.CheckoutService;
+import com.example.jerry.restaurant.pojo.CallingQueueManager;
+import com.example.jerry.restaurant.pojo.CallingNumber;
 
 @Service
 public class CheckoutServiceImpl implements CheckoutService {
@@ -52,6 +54,26 @@ public class CheckoutServiceImpl implements CheckoutService {
         new BigDecimal("0.75")    // 5开头 - 75折
     };
 
+    // 叫号队列管理器
+    private final CallingQueueManager queueManager = new CallingQueueManager();
+
+    // 用于生成每日自增编号
+    private static String lastOrderDate = "";
+    private static int dailyOrderSeq = 0;
+
+    private synchronized String generateOrderNumber(int tableId) {
+        String dateStr = new java.text.SimpleDateFormat("yyyyMMdd").format(new java.util.Date());
+        String tableStr = String.format("%02d", tableId);
+        if (!dateStr.equals(lastOrderDate)) {
+            lastOrderDate = dateStr;
+            dailyOrderSeq = 1;
+        } else {
+            dailyOrderSeq++;
+        }
+        String seqStr = String.format("%06d", dailyOrderSeq);
+        return dateStr + tableStr + seqStr;
+    }
+
     @Override
     @Transactional
     public Result<Checkout> createOrder(int tableId, int customerId, int peopleCount) {
@@ -71,9 +93,18 @@ public class CheckoutServiceImpl implements CheckoutService {
                 return Result.error("顾客不存在");
             }
 
-            // 生成16位订单编号：时间8位 + 桌子2位 + 人数2位 + 订单ID4位
-            String orderNumber = generateOrderNumber(tableId, peopleCount);
-            
+            // 检查叫号队列中tableId>0的叫号，若餐桌状态为"已占用"，则移除
+            queueManager.getCallingQueue().removeIf(cn -> {
+                if (cn.getTableId() > 0) {
+                    DiningTable t = diningTableMapper.getTableById(cn.getTableId());
+                    return t != null && "占用".equals(t.getTableStatus());
+                }
+                return false;
+            });
+
+            // 生成订单编号
+            String orderNumber = generateOrderNumber(tableId);
+
             // 创建订单
             order newOrder = new order();
             newOrder.setCustomerId(customerId);
@@ -247,6 +278,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             // 创建Checkout对象返回
             Checkout checkout = new Checkout();
             checkout.setOrderId(orderId);
+            checkout.setOrderNumber(generateOrderNumber(order.getTableId()));
             checkout.setCustomerId(order.getCustomerId());
             checkout.setTableId(order.getTableId());
             checkout.setOrderTime(order.getOrderTime());
@@ -284,25 +316,18 @@ public class CheckoutServiceImpl implements CheckoutService {
     }
 
     @Override
-    public Result<List<Object>> getPopularDishes(Date startTime, Date endTime) {
+    public Result<List<Map<String, Object>>> getPopularDishes(Date startTime, Date endTime) {
         try {
-            // 调用存储过程获取最受欢迎菜品
             List<Map<String, Object>> popularDishes = orderMapper.getPopularDishes(startTime, endTime);
-            return Result.success(popularDishes.stream().map(dish -> (Object) dish).toList());
+            List<Map<String, Object>> result = popularDishes.stream()
+                .map(dish -> Map.of(
+                    "dish_name", dish.get("dish_name"),
+                    "total_quantity", dish.get("total_quantity")
+                )).toList();
+            return Result.success(result);
         } catch (Exception e) {
             return Result.error("获取热门菜品失败: " + e.getMessage());
         }
-    }
-
-    // 生成16位订单编号
-    private String generateOrderNumber(int tableId, int peopleCount) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        String dateStr = sdf.format(new Date());
-        String tableStr = String.format("%02d", tableId);
-        String peopleStr = String.format("%02d", peopleCount);
-        String orderIdStr = String.format("%04d", orderMapper.getOrderCount() + 1);
-        
-        return dateStr + tableStr + peopleStr + orderIdStr;
     }
 
     // 根据顾客ID计算折扣
@@ -322,6 +347,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     private Checkout convertToCheckout(order order) {
         Checkout checkout = new Checkout();
         checkout.setOrderId(order.getOrderId());
+        checkout.setOrderNumber(generateOrderNumber(order.getTableId()));
         checkout.setCustomerId(order.getCustomerId());
         checkout.setTableId(order.getTableId());
         checkout.setOrderTime(order.getOrderTime());
