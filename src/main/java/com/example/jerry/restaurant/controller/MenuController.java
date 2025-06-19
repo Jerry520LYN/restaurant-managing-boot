@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/menus")
 @Validated
@@ -23,14 +25,15 @@ public class MenuController {
             @RequestParam @Pattern(regexp = "^\\S{5,20}$") String dishId,
             @RequestParam @Pattern(regexp = "^\\S{1,50}$") String dishName,
             @RequestParam @Pattern(regexp = "^\\d+(\\.\\d{1,2})?$") String price,
-            @RequestParam String description) {
+            @RequestParam String description,
+            @RequestParam String imageUrl) {
 
         Menu existingMenu = menuService.getMenuById(dishId);
         if (existingMenu != null) {
             return Result.error("该菜品ID已存在");
         }
 
-        Menu addedMenu = menuService.addMenu(dishId, dishName, price, description);
+        Menu addedMenu = menuService.addMenu(dishId, dishName, price, description, imageUrl);
         return Result.success(addedMenu);
     }
 
@@ -40,9 +43,10 @@ public class MenuController {
             @RequestParam @Pattern(regexp = "^\\S{5,20}$") String dishId,
             @RequestParam @Pattern(regexp = "^\\S{1,50}$") String dishName,
             @RequestParam @Pattern(regexp = "^\\d+(\\.\\d{1,2})?$") String price,
-            @RequestParam String description) {
+            @RequestParam String description,
+            @RequestParam String imageUrl) {
 
-        Menu updatedMenu = menuService.updateMenu(dishId, dishName, price, description);
+        Menu updatedMenu = menuService.updateMenu(dishId, dishName, price, description, imageUrl);
         if (updatedMenu != null) {
             return Result.success(updatedMenu);
         } else {
@@ -65,5 +69,10 @@ public class MenuController {
         return Result.error("请再自己看看哦");
         else
         return Result.success(menu);
+    }
+
+    @GetMapping("/all")
+    public Result<List<Menu>> getAllMenus() {
+        return Result.success(menuService.getAllMenus());
     }
 }

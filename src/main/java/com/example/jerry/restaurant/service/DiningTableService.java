@@ -8,4 +8,6 @@ public interface DiningTableService {
     String deleteTable(Integer tableId);
 
     DiningTable getTableById(Integer tableId);
+
+    java.util.List<DiningTable> getAllTables();
 }

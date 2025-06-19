@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class MenuServiceImpl implements MenuService {
@@ -20,15 +21,15 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public Menu addMenu(String dishId, String dishName, String price, String description) {
-        Menu menu = new Menu(dishId, dishName, new BigDecimal(price), description);
+    public Menu addMenu(String dishId, String dishName, String price, String description, String imageUrl) {
+        Menu menu = new Menu(dishId, dishName, new BigDecimal(price), description, imageUrl);
         menuMapper.addMenu(menu);
         return menuMapper.getMenuById(dishId);
     }
 
     @Override
-    public Menu updateMenu(String dishId, String dishName, String price, String description) {
-        Menu menu = new Menu(dishId, dishName, new BigDecimal(price), description);
+    public Menu updateMenu(String dishId, String dishName, String price, String description, String imageUrl) {
+        Menu menu = new Menu(dishId, dishName, new BigDecimal(price), description, imageUrl);
         menuMapper.updateMenu(menu);
         return menuMapper.getMenuById(dishId);
     }
@@ -41,5 +42,10 @@ public class MenuServiceImpl implements MenuService {
         } else {
             return "删除失败";
         }
+    }
+
+    @Override
+    public List<Menu> getAllMenus() {
+        return menuMapper.getAllMenus();
     }
 }

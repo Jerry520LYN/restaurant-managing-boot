@@ -6,6 +6,7 @@ import com.example.jerry.restaurant.service.UserService;
 import com.example.jerry.restaurant.utils.JwtUtil;
 
 import java.util.Map;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;

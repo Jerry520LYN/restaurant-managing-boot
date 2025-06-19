@@ -36,4 +36,7 @@ public interface DiningTableMapper {
     // 新增：获取可用餐桌的ID
     @Select("SELECT table_id FROM dining_table WHERE table_status = '空' AND capacity = #{capacity} LIMIT 1")
     public Integer getAvailableTableId(Integer capacity);
+
+    @Select("SELECT * FROM dining_table")
+    java.util.List<DiningTable> getAllTables();
 }

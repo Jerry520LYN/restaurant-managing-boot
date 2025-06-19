@@ -28,4 +28,7 @@ public interface CustomerMapper {
 
     @Delete("delete from customer where phone =#{phone}")
     public void deleteCustomer(String phone);
+
+    @Select("select * from customer")
+    public java.util.List<Customer> getAllCustomers();
 }

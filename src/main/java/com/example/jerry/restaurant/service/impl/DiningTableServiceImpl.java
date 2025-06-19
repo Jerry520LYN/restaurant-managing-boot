@@ -36,4 +36,9 @@ public class DiningTableServiceImpl implements DiningTableService {
         return diningTableMapper.getTableById(tableId) == null ? 
             "餐桌删除成功" : "删除失败";
     }
+
+    @Override
+    public java.util.List<DiningTable> getAllTables() {
+        return diningTableMapper.getAllTables();
+    }
 }

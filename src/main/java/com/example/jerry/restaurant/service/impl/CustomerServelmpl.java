@@ -46,4 +46,9 @@ public class CustomerServelmpl implements CustomerService {
         else
         return "删除失败";
     }
+
+    @Override
+    public java.util.List<Customer> getAllCustomers() {
+        return customerMapper.getAllCustomers();
+    }
 }

@@ -12,4 +12,6 @@ public interface CustomerService {
     String deleteCustomer(String phone);
 
     Customer  getCustomerById(int id);
+
+    java.util.List<Customer> getAllCustomers();
 }

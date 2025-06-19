@@ -7,14 +7,16 @@ public class Menu {
     private String dishName;       // 菜品名称
     private BigDecimal price;      // 价格
     private String description;    // 描述
+    private String imageUrl;       // 图片链接
 
     public Menu() {}
 
-    public Menu(String dishId, String dishName, BigDecimal price, String description) {
+    public Menu(String dishId, String dishName, BigDecimal price, String description, String imageUrl) {
         this.dishId = dishId;
         this.dishName = dishName;
         this.price = price;
         this.description = description;
+        this.imageUrl = imageUrl;
     }
 
     // Getter 和 Setter 方法
@@ -30,6 +32,9 @@ public class Menu {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
     @Override
     public String toString() {
         return "Menu{" +
@@ -37,6 +42,7 @@ public class Menu {
                 ", dishName='" + dishName + '\'' +
                 ", price=" + price +
                 ", description='" + description + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 '}';
     }
 }

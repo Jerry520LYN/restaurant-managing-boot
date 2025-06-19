@@ -44,4 +44,9 @@ public class DiningTableController {
     @RequestParam @Min(1) Integer tableId) {
     return Result.success(diningTableService.getTableById(tableId));
 }
+
+    @GetMapping("/all")
+    public Result<java.util.List<DiningTable>> getAllTables() {
+        return Result.success(diningTableService.getAllTables());
+    }
 }

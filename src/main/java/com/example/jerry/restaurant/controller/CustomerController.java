@@ -75,4 +75,8 @@ public class CustomerController {
         return Result.success(customerService.getCustomerByPhone(phone));
     }
     
+    @GetMapping("/all")
+    public Result<java.util.List<Customer>> getAllCustomers() {
+        return Result.success(customerService.getAllCustomers());
+    }
 }
