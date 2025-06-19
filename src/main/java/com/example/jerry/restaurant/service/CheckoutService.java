@@ -34,4 +34,6 @@ public interface CheckoutService {
     
     // 获取最受欢迎菜品
     Result<List<Map<String, Object>>> getPopularDishes(Date startTime, Date endTime);
+
+    Result<List<Checkout>> getOrdersByTimeRangeAndStatus(Date startTime, Date endTime, String status);
 } 

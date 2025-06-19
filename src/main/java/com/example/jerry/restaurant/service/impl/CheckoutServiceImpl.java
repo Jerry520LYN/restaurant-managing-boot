@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,6 +75,13 @@ public class CheckoutServiceImpl implements CheckoutService {
         return dateStr + tableStr + seqStr;
     }
 
+    // 辅助方法：移除所有人数队列中的手机号
+    private void removePhoneFromAllQueues(String phone) {
+        queueManager.getQueueByCapacity(2).remove(phone);
+        queueManager.getQueueByCapacity(4).remove(phone);
+        queueManager.getQueueByCapacity(8).remove(phone);
+    }
+
     @Override
     @Transactional
     public Result<Checkout> createOrder(int tableId, int customerId, int peopleCount) {
@@ -93,15 +101,6 @@ public class CheckoutServiceImpl implements CheckoutService {
                 return Result.error("顾客不存在");
             }
 
-            // 检查叫号队列中tableId>0的叫号，若餐桌状态为"已占用"，则移除
-            queueManager.getCallingQueue().removeIf(cn -> {
-                if (cn.getTableId() > 0) {
-                    DiningTable t = diningTableMapper.getTableById(cn.getTableId());
-                    return t != null && "占用".equals(t.getTableStatus());
-                }
-                return false;
-            });
-
             // 生成订单编号
             String orderNumber = generateOrderNumber(tableId);
 
@@ -115,6 +114,22 @@ public class CheckoutServiceImpl implements CheckoutService {
             
             int orderId = orderMapper.addOrder(newOrder);
             
+            // 更新餐桌状态为"占用"
+            diningTableMapper.updateStatus(tableId, "占用");
+            
+            // 清理叫号队列中对应的记录
+            queueManager.getCallingQueue().removeIf(cn -> {
+                if (cn.getTableId() == tableId) {
+                    // 同时从容量队列中移除手机号
+                    Queue<String> capacityQueue = queueManager.getQueueByCapacity(cn.getCapacity());
+                    if (capacityQueue != null) {
+                        capacityQueue.remove(cn.getPhone());
+                    }
+                    return true;
+                }
+                return false;
+            });
+            
             // 创建Checkout对象返回
             Checkout checkout = new Checkout();
             checkout.setOrderId(orderId);
@@ -124,10 +139,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             checkout.setOrderTime(newOrder.getOrderTime());
             checkout.setTotalAmount(BigDecimal.ZERO);
             checkout.setStatus("未结账");
-            
-            // 根据顾客ID计算折扣
-            BigDecimal discount = calculateDiscount(customerId);
-            checkout.setDiscount(discount);
+            checkout.setDiscount(calculateDiscount(customerId));
             checkout.setFinalAmount(BigDecimal.ZERO);
             
             return Result.success(checkout);
@@ -145,6 +157,11 @@ public class CheckoutServiceImpl implements CheckoutService {
             order order = orderMapper.getOrderById(orderId);
             if (order == null) {
                 return Result.error("订单不存在");
+            }
+            
+            // 检查订单状态，如果已结账则不允许修改
+            if ("已结账".equals(order.getStatus())) {
+                return Result.error("订单已结账，无法修改菜品信息");
             }
             
             // 检查菜品是否存在
@@ -190,6 +207,11 @@ public class CheckoutServiceImpl implements CheckoutService {
                 return Result.error("订单不存在");
             }
             
+            // 检查订单状态，如果已结账则不允许修改
+            if ("已结账".equals(order.getStatus())) {
+                return Result.error("订单已结账，无法修改菜品信息");
+            }
+            
             // 删除菜品
             int result = orderDetailMapper.deleteOrderDetailByOrderAndDish(orderId, dishId);
             if (result > 0) {
@@ -211,6 +233,11 @@ public class CheckoutServiceImpl implements CheckoutService {
             order order = orderMapper.getOrderById(orderId);
             if (order == null) {
                 return Result.error("订单不存在");
+            }
+            
+            // 检查订单状态，如果已结账则不允许修改
+            if ("已结账".equals(order.getStatus())) {
+                return Result.error("订单已结账，无法修改菜品信息");
             }
             
             if (quantity <= 0) {
@@ -274,6 +301,21 @@ public class CheckoutServiceImpl implements CheckoutService {
             
             // 更新订单状态和总金额
             orderMapper.checkoutOrder(orderId, finalAmount);
+
+            // === 新增：同步移除叫号队列和所有人数队列中的手机号 ===
+            // 假设 tableId 唯一对应一个叫号对象（如有多叫号对象可遍历处理）
+            CallingNumber toRemove = null;
+            for (CallingNumber cn : queueManager.getCallingQueue()) {
+                if (cn.getTableId() == order.getTableId() && cn.getTableId() > 0) {
+                    toRemove = cn;
+                    break;
+                }
+            }
+            if (toRemove != null) {
+                queueManager.getCallingQueue().remove(toRemove);
+                removePhoneFromAllQueues(toRemove.getPhone());
+            }
+            // === 新增结束 ===
             
             // 创建Checkout对象返回
             Checkout checkout = new Checkout();
@@ -356,5 +398,15 @@ public class CheckoutServiceImpl implements CheckoutService {
         checkout.setDiscount(calculateDiscount(order.getCustomerId()));
         checkout.setFinalAmount(order.getTotalAmount().multiply(calculateDiscount(order.getCustomerId())));
         return checkout;
+    }
+    @Override
+    public Result<List<Checkout>> getOrdersByTimeRangeAndStatus(Date startTime, Date endTime, String status) {
+        try {
+            List<order> orders = orderMapper.getOrdersByTimeRangeAndStatus(startTime, endTime, status);
+            List<Checkout> checkouts = orders.stream().map(this::convertToCheckout).toList();
+            return Result.success(checkouts);
+        } catch (Exception e) {
+            return Result.error("查询订单失败: " + e.getMessage());
+        }
     }
 } 

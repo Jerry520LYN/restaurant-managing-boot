@@ -42,6 +42,8 @@ public interface OrderMapper {
     @Select("SELECT * FROM orders WHERE order_time BETWEEN #{startTime} AND #{endTime}")
     List<order> getOrdersByTimeRange(Date startTime, Date endTime);
     
+    @Select("SELECT * FROM orders WHERE order_time BETWEEN #{startTime} AND #{endTime} AND status = #{status}")
+    List<order> getOrdersByTimeRangeAndStatus(Date startTime, Date endTime, String status);
     @Select("SELECT COUNT(*) FROM orders")
     int getOrderCount();
     

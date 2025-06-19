@@ -20,10 +20,11 @@ public class CallingNumberController {
 
     @PostMapping("/getcallingnumber")
     public Result<CallingNumber> getMethodName(@RequestParam String phone, @RequestParam int peoplenumber) {
-        if(callingNumberService.getResult(phone, peoplenumber)==null)
+        CallingNumber callingNumber = callingNumberService.getResult(phone, peoplenumber);
+        if(callingNumber==null)
             return Result.error("无需叫号");
         else{
-            CallingNumber callingNumber = callingNumberService.getResult(phone, peoplenumber);
+            
             return Result.success(callingNumber);
         }
     }

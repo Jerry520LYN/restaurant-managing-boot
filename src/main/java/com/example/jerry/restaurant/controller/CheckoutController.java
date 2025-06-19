@@ -137,7 +137,7 @@ public class CheckoutController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime) {
         // 这里可以调用存储过程 get_revenue_by_period
         // 暂时返回简单的实现
-        List<Checkout> orders = checkoutService.getOrdersByTimeRange(startTime, endTime).getData();
+        List<Checkout> orders = checkoutService.getOrdersByTimeRangeAndStatus(startTime, endTime, "已结账").getData();
         double totalRevenue = orders.stream()
                 .mapToDouble(order -> order.getFinalAmount().doubleValue())
                 .sum();
