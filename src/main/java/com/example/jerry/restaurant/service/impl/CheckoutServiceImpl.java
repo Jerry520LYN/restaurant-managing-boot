@@ -75,12 +75,6 @@ public class CheckoutServiceImpl implements CheckoutService {
         return dateStr + tableStr + seqStr;
     }
 
-    // 辅助方法：移除所有人数队列中的手机号
-    private void removePhoneFromAllQueues(String phone) {
-        queueManager.getQueueByCapacity(2).remove(phone);
-        queueManager.getQueueByCapacity(4).remove(phone);
-        queueManager.getQueueByCapacity(8).remove(phone);
-    }
 
     @Override
     @Transactional
@@ -117,18 +111,6 @@ public class CheckoutServiceImpl implements CheckoutService {
             // 更新餐桌状态为"占用"
             diningTableMapper.updateStatus(tableId, "占用");
             
-            // 清理叫号队列中对应的记录
-            queueManager.getCallingQueue().removeIf(cn -> {
-                if (cn.getTableId() == tableId) {
-                    // 同时从容量队列中移除手机号
-                    Queue<String> capacityQueue = queueManager.getQueueByCapacity(cn.getCapacity());
-                    if (capacityQueue != null) {
-                        capacityQueue.remove(cn.getPhone());
-                    }
-                    return true;
-                }
-                return false;
-            });
             
             // 创建Checkout对象返回
             Checkout checkout = new Checkout();
@@ -301,21 +283,6 @@ public class CheckoutServiceImpl implements CheckoutService {
             
             // 更新订单状态和总金额
             orderMapper.checkoutOrder(orderId, finalAmount);
-
-            // === 新增：同步移除叫号队列和所有人数队列中的手机号 ===
-            // 假设 tableId 唯一对应一个叫号对象（如有多叫号对象可遍历处理）
-            CallingNumber toRemove = null;
-            for (CallingNumber cn : queueManager.getCallingQueue()) {
-                if (cn.getTableId() == order.getTableId() && cn.getTableId() > 0) {
-                    toRemove = cn;
-                    break;
-                }
-            }
-            if (toRemove != null) {
-                queueManager.getCallingQueue().remove(toRemove);
-                removePhoneFromAllQueues(toRemove.getPhone());
-            }
-            // === 新增结束 ===
             
             // 创建Checkout对象返回
             Checkout checkout = new Checkout();

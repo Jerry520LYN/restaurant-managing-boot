@@ -1,50 +1,11 @@
 package com.example.jerry.restaurant.pojo;
-import java.time.LocalDateTime;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor
-@AllArgsConstructor
 public class CallingNumber {
-    private int callingNumberId;//叫号单子的Id
-    private int diningTableNumber; // 剩余餐桌数量（正的不用等，负的需要等）
-    private int tableId;// 叫到的餐桌ID
-    private int estimatedWaitingTime; // 预估等待时间（分钟）
-    private int capacity; // 餐桌容量（2/4/8）
-    private String phone; // 顾客手机号
-
-    public int getDiningTableNumber() {
-        return diningTableNumber;
-    }
-
-    public void setDiningTableNumber(int diningTableNumber) {
-        this.diningTableNumber = diningTableNumber;
-    }
-
-    public int getTableId() {
-        return tableId;
-    }
-
-    public void setTableId(int tableId) {
-        this.tableId = tableId;
-    }
-
-    public int getEstimatedWaitingTime() {
-        return estimatedWaitingTime;
-    }
-
-    public void setEstimatedWaitingTime(int estimatedWaitingTime) {
-        this.estimatedWaitingTime = estimatedWaitingTime;
-    }
-
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-    }
+    private int callingNumberId; // 叫号单子的Id
+    private int waitingCount;   // 当前等待人数
+    private int diningCount;    // 当前正在用餐桌数
+    private String status;      // 状态：WAITING, DINING, FINISHED
+    private String phone;       // 顾客手机号
 
     public int getCallingNumberId() {
         return callingNumberId;
@@ -52,6 +13,30 @@ public class CallingNumber {
 
     public void setCallingNumberId(int callingNumberId) {
         this.callingNumberId = callingNumberId;
+    }
+
+    public int getWaitingCount() {
+        return waitingCount;
+    }
+
+    public void setWaitingCount(int waitingCount) {
+        this.waitingCount = waitingCount;
+    }
+
+    public int getDiningCount() {
+        return diningCount;
+    }
+
+    public void setDiningCount(int diningCount) {
+        this.diningCount = diningCount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getPhone() {
