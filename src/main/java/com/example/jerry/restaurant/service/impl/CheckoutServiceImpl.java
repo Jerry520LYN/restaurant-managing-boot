@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -113,6 +114,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             
             // 创建订单
             order newOrder = new order();
+            newOrder.setOrderNumber(orderNumber);
             newOrder.setCustomerId(customerId);
             newOrder.setTableId(tableId);
             newOrder.setOrderTime(new java.sql.Date(System.currentTimeMillis()));
@@ -428,10 +430,21 @@ public class CheckoutServiceImpl implements CheckoutService {
     public Result<List<Checkout>> getOrdersByTimeRangeAndStatus(Date startTime, Date endTime, String status) {
         try {
             List<order> orders = orderMapper.getOrdersByTimeRangeAndStatus(startTime, endTime, status);
-            List<Checkout> checkouts = orders.stream().map(order -> convertToCheckout(order)).toList();
+            List<Checkout> checkouts = orders.stream().map(this::convertToCheckout).collect(Collectors.toList());
             return Result.success(checkouts);
         } catch (Exception e) {
             return Result.error("查询订单失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Result<List<Checkout>> getAllOrdersAsCheckout() {
+        try {
+            List<order> orders = orderMapper.getAllOrders();
+            List<Checkout> checkouts = orders.stream().map(this::convertToCheckout).collect(Collectors.toList());
+            return Result.success(checkouts);
+        } catch (Exception e) {
+            return Result.error("获取所有订单失败: " + e.getMessage());
         }
     }
 } 

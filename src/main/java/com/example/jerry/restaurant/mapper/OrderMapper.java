@@ -28,7 +28,7 @@ public interface OrderMapper {
     @Update("update orders set customer_id=#{customerId},table_id=#{tableId},total_amount=#{totalAmount},discount=#{discount},final_amount=#{finalAmount} where order_id=#{orderId}")
     void updateOrder(int orderId, int customerId, int tableId, BigDecimal totalAmount, BigDecimal discount, BigDecimal finalAmount);
 
-    @Insert("insert into orders (customer_id,table_id,order_time,total_amount,discount,final_amount) values (#{customerId},#{tableId},#{orderTime},#{totalAmount},#{discount},#{finalAmount})")
+    @Insert("insert into orders (order_number,customer_id,table_id,order_time,total_amount,discount,final_amount) values (#{orderNumber},#{customerId},#{tableId},#{orderTime},#{totalAmount},#{discount},#{finalAmount})")
     @Options(useGeneratedKeys = true, keyProperty = "orderId")
     int addOrder(order order);
 

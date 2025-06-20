@@ -16,7 +16,9 @@ import java.util.List;
 import com.example.jerry.restaurant.pojo.Result;
 import com.example.jerry.restaurant.pojo.order;
 import com.example.jerry.restaurant.pojo.OrderWithDetailsDTO;
+import com.example.jerry.restaurant.pojo.Checkout;
 import com.example.jerry.restaurant.service.OrderService;
+import com.example.jerry.restaurant.service.CheckoutService;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,6 +35,9 @@ public class OrderController {
     
     @Autowired
     private OrderService orderService; 
+
+    @Autowired
+    private CheckoutService checkoutService;
 
     @Autowired
     private OrderMapper orderMapper;
@@ -57,25 +62,11 @@ public class OrderController {
     }
 
     @GetMapping("/all")
-    public Result<List<Map<String, Object>>> getAllOrders(@RequestParam String authenticity) {
+    public Result<List<Checkout>> getAllOrders(@RequestParam String authenticity) {
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
         }
-        List<order> orders = orderService.getAllOrders();
-        List<Map<String, Object>> result = new ArrayList<>();
-        
-        for (order order : orders) {
-            Map<String, Object> orderMap = new HashMap<>();
-            orderMap.put("totalAmount", order.getTotalAmount().doubleValue());
-            orderMap.put("orderTime", order.getOrderTime());
-            orderMap.put("orderId", order.getOrderId());
-            orderMap.put("customerId", order.getCustomerId());
-            orderMap.put("tableId", order.getTableId());
-            orderMap.put("status", order.getStatus());
-            result.add(orderMap);
-        }
-        
-        return Result.success(result);
+        return checkoutService.getAllOrdersAsCheckout();
     }
 
     @GetMapping("/allWithDetails")

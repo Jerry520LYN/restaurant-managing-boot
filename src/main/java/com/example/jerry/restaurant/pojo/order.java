@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 public class order {
     
     private int orderId;
+    private String orderNumber;
 
     @NotNull(message = "Customer ID cannot be null")
     private int customerId;
@@ -40,6 +41,14 @@ public class order {
 
     public void setOrderId(int orderId) {
         this.orderId = orderId;
+    }
+
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
     }
 
     public int getCustomerId() {
@@ -103,6 +112,7 @@ public class order {
     public String toString() {
         return "Order{" +
                 "orderId=" + orderId +
+                ", orderNumber='" + orderNumber + '\'' +
                 ", customerId=" + customerId +
                 ", tableId=" + tableId +
                 ", orderTime=" + orderTime +

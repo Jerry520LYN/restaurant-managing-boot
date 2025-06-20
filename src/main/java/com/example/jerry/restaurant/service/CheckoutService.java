@@ -36,4 +36,6 @@ public interface CheckoutService {
     Result<List<Map<String, Object>>> getPopularDishes(Date startTime, Date endTime);
 
     Result<List<Checkout>> getOrdersByTimeRangeAndStatus(Date startTime, Date endTime, String status);
+
+    Result<List<Checkout>> getAllOrdersAsCheckout();
 } 
