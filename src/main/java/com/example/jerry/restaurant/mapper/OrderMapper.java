@@ -25,10 +25,10 @@ public interface OrderMapper {
     @Select("select * from orders where order_number=#{orderNumber}")
     order getOrderByNumber(String orderNumber);
     
-    @Update("update orders set customer_id=#{customerId},table_id=#{tableId},total_amount=#{totalAmount} where order_id=#{orderId}")
-    void updateOrder(int orderId, int customerId, int tableId, BigDecimal totalAmount);
+    @Update("update orders set customer_id=#{customerId},table_id=#{tableId},total_amount=#{totalAmount},discount=#{discount},final_amount=#{finalAmount} where order_id=#{orderId}")
+    void updateOrder(int orderId, int customerId, int tableId, BigDecimal totalAmount, BigDecimal discount, BigDecimal finalAmount);
 
-    @Insert("insert into orders (customer_id,table_id,order_time,total_amount) values (#{customerId},#{tableId},#{orderTime},#{totalAmount})")
+    @Insert("insert into orders (customer_id,table_id,order_time,total_amount,discount,final_amount) values (#{customerId},#{tableId},#{orderTime},#{totalAmount},#{discount},#{finalAmount})")
     @Options(useGeneratedKeys = true, keyProperty = "orderId")
     int addOrder(order order);
 
@@ -38,8 +38,8 @@ public interface OrderMapper {
     @Update("UPDATE orders SET status = #{status} WHERE order_id = #{orderId}")
     int updateOrderStatus(int orderId, String status);
     
-    @Update("UPDATE orders SET total_amount = #{totalAmount}, status = '已结账' WHERE order_id = #{orderId}")
-    int checkoutOrder(int orderId, BigDecimal totalAmount);
+    @Update("UPDATE orders SET total_amount = #{totalAmount}, discount = #{discount}, final_amount = #{finalAmount}, status = '已结账' WHERE order_id = #{orderId}")
+    int checkoutOrder(int orderId, BigDecimal totalAmount, BigDecimal discount, BigDecimal finalAmount);
     
     @Select("SELECT * FROM orders WHERE order_time BETWEEN #{startTime} AND #{endTime}")
     List<order> getOrdersByTimeRange(Date startTime, Date endTime);

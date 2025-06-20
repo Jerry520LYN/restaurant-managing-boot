@@ -24,7 +24,6 @@ public class CheckoutController {
 
     /**
      * 创建订单
-     * @param authenticity 认证信息
      * @param tableId 餐桌ID
      * @param customerId 顾客ID
      * @param peopleCount 人数
@@ -32,13 +31,9 @@ public class CheckoutController {
      */
     @PostMapping("/create-order")
     public Result<Checkout> createOrder(
-            @RequestParam String authenticity,
             @RequestParam int tableId,
             @RequestParam int customerId,
             @RequestParam int peopleCount) {
-        if (JwtUtil.parseToken(authenticity) == null) {
-            return Result.error("无效的token，请重新登录");
-        }
         return checkoutService.createOrder(tableId, customerId, peopleCount);
     }
 

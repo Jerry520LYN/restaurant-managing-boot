@@ -108,15 +108,21 @@ public class CheckoutServiceImpl implements CheckoutService {
             // 生成订单编号
             String orderNumber = generateOrderNumber(tableId);
 
+            // 计算折扣
+            BigDecimal discount = calculateDiscount(customerId);
+            
             // 创建订单
             order newOrder = new order();
             newOrder.setCustomerId(customerId);
             newOrder.setTableId(tableId);
             newOrder.setOrderTime(new java.sql.Date(System.currentTimeMillis()));
             newOrder.setTotalAmount(BigDecimal.ZERO);
+            newOrder.setDiscount(discount);
+            newOrder.setFinalAmount(BigDecimal.ZERO);
             newOrder.setStatus("未结账");
             
-            int orderId = orderMapper.addOrder(newOrder);
+            // 调用addOrder后，MyBatis会将数据库生成的自增ID回填到newOrder对象中
+            orderMapper.addOrder(newOrder);
             
             // 更新餐桌状态为"占用"
             diningTableMapper.updateStatus(tableId, "占用");
@@ -124,14 +130,15 @@ public class CheckoutServiceImpl implements CheckoutService {
             
             // 创建Checkout对象返回
             Checkout checkout = new Checkout();
-            checkout.setOrderId(orderId);
+            // 从newOrder对象中获取真实的数据库ID
+            checkout.setOrderId(newOrder.getOrderId());
             checkout.setOrderNumber(orderNumber);
             checkout.setCustomerId(customerId);
             checkout.setTableId(tableId);
             checkout.setOrderTime(newOrder.getOrderTime());
             checkout.setTotalAmount(BigDecimal.ZERO);
             checkout.setStatus("未结账");
-            checkout.setDiscount(calculateDiscount(customerId));
+            checkout.setDiscount(discount);
             checkout.setFinalAmount(BigDecimal.ZERO);
             
             return Result.success(checkout);
@@ -182,6 +189,9 @@ public class CheckoutServiceImpl implements CheckoutService {
                 orderDetailMapper.addOrderDetail(orderDetail);
             }
             
+            // 重新计算订单总金额和最终金额
+            updateOrderAmounts(orderId);
+            
             return Result.success("添加菜品成功");
             
         } catch (Exception e) {
@@ -207,6 +217,8 @@ public class CheckoutServiceImpl implements CheckoutService {
             // 删除菜品
             int result = orderDetailMapper.deleteOrderDetailByOrderAndDish(orderId, dishId);
             if (result > 0) {
+                // 重新计算订单总金额和最终金额
+                updateOrderAmounts(orderId);
                 return Result.success("移除菜品成功");
             } else {
                 return Result.error("菜品不存在于订单中");
@@ -250,6 +262,10 @@ public class CheckoutServiceImpl implements CheckoutService {
             
             // 更新数量
             orderDetailMapper.updateOrderDetailQuantity(targetDetail.getDetailId(), quantity);
+            
+            // 重新计算订单总金额和最终金额
+            updateOrderAmounts(orderId);
+            
             return Result.success("更新菜品数量成功");
             
         } catch (Exception e) {
@@ -292,7 +308,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             BigDecimal finalAmount = totalAmount.multiply(discount);
             
             // 更新订单状态和总金额
-            orderMapper.checkoutOrder(orderId, finalAmount);
+            orderMapper.checkoutOrder(orderId, totalAmount, discount, finalAmount);
             
             // 创建Checkout对象返回
             Checkout checkout = new Checkout();
@@ -362,6 +378,38 @@ public class CheckoutServiceImpl implements CheckoutService {
         return BigDecimal.ONE; // 默认无折扣
     }
 
+    // 更新订单的总金额和最终金额
+    private void updateOrderAmounts(int orderId) {
+        try {
+            // 获取订单详情并计算总价
+            List<OrderDetail> orderDetails = orderDetailMapper.getOrderDetailsWithDishInfo(orderId);
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            
+            for (OrderDetail detail : orderDetails) {
+                Menu dish = menuMapper.getDishById(detail.getDishId());
+                if (dish != null) {
+                    BigDecimal price = dish.getPrice();
+                    BigDecimal quantity = new BigDecimal(detail.getQuantity());
+                    totalAmount = totalAmount.add(price.multiply(quantity));
+                }
+            }
+            
+            // 获取订单信息以获取折扣
+            order order = orderMapper.getOrderById(orderId);
+            if (order != null) {
+                BigDecimal discount = order.getDiscount();
+                BigDecimal finalAmount = totalAmount.multiply(discount);
+                
+                // 更新订单的总金额和最终金额
+                orderMapper.updateOrder(orderId, order.getCustomerId(), order.getTableId(), 
+                                     totalAmount, discount, finalAmount);
+            }
+        } catch (Exception e) {
+            // 记录错误但不抛出异常，避免影响主要业务流程
+            System.err.println("更新订单金额失败: " + e.getMessage());
+        }
+    }
+
     // 将order转换为Checkout
     private Checkout convertToCheckout(order order) {
         Checkout checkout = new Checkout();
@@ -372,8 +420,8 @@ public class CheckoutServiceImpl implements CheckoutService {
         checkout.setOrderTime(order.getOrderTime());
         checkout.setTotalAmount(order.getTotalAmount());
         checkout.setStatus(order.getStatus());
-        checkout.setDiscount(calculateDiscount(order.getCustomerId()));
-        checkout.setFinalAmount(order.getTotalAmount().multiply(calculateDiscount(order.getCustomerId())));
+        checkout.setDiscount(order.getDiscount());
+        checkout.setFinalAmount(order.getFinalAmount());
         return checkout;
     }
     @Override
