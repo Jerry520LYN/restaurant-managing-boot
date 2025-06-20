@@ -26,11 +26,13 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
     
+    //@Pattern 验证注解问题
+//在 CustomerController.java 中，你对 int id 使用了 @Pattern 注解，这是不正确的。@Pattern 注解只能用于 String 类型的字段。
     @PostMapping("/addCustomer")
     public Result<Customer> addCustomer(
         @RequestParam String authenticity,
-        @RequestParam @Pattern(regexp = "^[012345].*") int id,
-        @RequestParam @Pattern(regexp = "^\\S{5,16}$") String name,
+        @RequestParam @Pattern(regexp = "^[012345].*") String id,  // Change int to String
+        @RequestParam @Pattern(regexp = "^\\S{5,32}$") String name,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone){
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
@@ -40,7 +42,8 @@ public class CustomerController {
             return Result.error("该手机号已被注册");
         } else {
             // 添加新客户
-            customerService.addCustomer(id, name, phone);
+            int customerId = Integer.parseInt(id);  // Convert String to int
+            customerService.addCustomer(customerId, name, phone);
             
             // 获取并返回新添加的客户信息
             Customer newCustomer = customerService.getCustomerByPhone(phone);
@@ -51,26 +54,27 @@ public class CustomerController {
     @PostMapping("/updateCustomer")
     public Result<Customer> updateCustomer(
         @RequestParam String authenticity,
-        @RequestParam @Pattern(regexp = "^\\S{9}$") int id,
-        @RequestParam @Pattern(regexp = "^\\S{5,16}$") String name,
+        @RequestParam @Pattern(regexp = "^[012345].*") String id,
+        @RequestParam @Pattern(regexp = "^\\S{5,32}$") String name,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String oldphone){
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
         }
-
-            Customer existingCustomer = customerService.getCustomerById(id);
-            Customer updatedCustomer = customerService.getCustomerByPhone(oldphone);
-            Customer newcustomer = customerService.getCustomerByPhone(phone);
+        int customerId = Integer.parseInt(id);
+        Customer existingCustomer = customerService.getCustomerById(customerId);
+        Customer updatedCustomer = customerService.getCustomerByPhone(oldphone);
+        Customer newcustomer = customerService.getCustomerByPhone(phone);
             if(updatedCustomer != null && newcustomer == null&& existingCustomer == null)
             {
-                customerService.updateCustomer(id, name, phone,oldphone);
+                
+                customerService.updateCustomer(customerId, name, phone,oldphone);
                 Customer customer = customerService.getCustomerByPhone(phone);
                 return Result.success(customer);
             }else
             {
                 return Result.error("更新失败,你输入的手机号或者ID可能已经被注册");
-            }
+        }
     }
 
     @DeleteMapping("/deleteCustomer")
