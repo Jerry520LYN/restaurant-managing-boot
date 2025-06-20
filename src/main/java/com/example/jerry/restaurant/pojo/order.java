@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
-public class order {
+public class Order {
     
     private int orderId;
     private String orderNumber;
@@ -29,7 +29,7 @@ public class order {
 
     private String status = "未结账";
     
-    public order(int orderId, int customerId, int tableId, BigDecimal totalAmount){
+    public Order(int orderId, int customerId, int tableId, BigDecimal totalAmount){
         this.orderId = orderId;
         this.customerId = customerId;
         this.tableId = tableId;

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.jerry.restaurant.mapper.DiningTableMapper">
+    <insert id="addTable" parameterType="com.example.jerry.restaurant.pojo.DiningTable" useGeneratedKeys="true" keyProperty="tableId">
+        INSERT INTO dining_table (table_status, capacity) VALUES (#{tableStatus}, #{capacity})
+    </insert>
+    <select id="getTableById" parameterType="int" resultType="com.example.jerry.restaurant.pojo.DiningTable">
+        SELECT * FROM dining_table WHERE table_id = #{tableId}
+    </select>
+    <update id="updateStatus">
+        UPDATE dining_table SET table_status = #{tableStatus} WHERE table_id = #{tableId}
+    </update>
+    <delete id="deleteTable" parameterType="int">
+        DELETE FROM dining_table WHERE table_id = #{tableId}
+    </delete>
+    <select id="getNumber2" resultType="int">
+        select COUNT(*) from dining_table where table_status = '空' and capacity = 2
+    </select>
+    <select id="getNumber4" resultType="int">
+        select COUNT(*) from dining_table where table_status = '空' and capacity = 4
+    </select>
+    <select id="getNumber8" resultType="int">
+        select COUNT(*) from dining_table where table_status = '空' and capacity = 8
+    </select>
+    <select id="getNumber" resultType="int">
+        select COUNT(*) from dining_table where table_status = '空'
+    </select>
+    <select id="getTableBycapacity" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM dining_table WHERE capacity = #{capacity}
+    </select>
+    <select id="getAvailableTableId" parameterType="int" resultType="int">
+        SELECT table_id FROM dining_table WHERE table_status = '空' AND capacity = #{capacity} LIMIT 1
+    </select>
+    <select id="getAllTables" resultType="com.example.jerry.restaurant.pojo.DiningTable">
+        SELECT * FROM dining_table
+    </select>
+</mapper> 

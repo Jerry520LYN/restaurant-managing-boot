@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.jerry.restaurant.mapper.OrderMapper">
+
+    <select id="getAllOrders" resultType="com.example.jerry.restaurant.pojo.Order">
+        select * from orders
+    </select>
+
+    <select id="getOrderById" parameterType="int" resultType="com.example.jerry.restaurant.pojo.Order">
+        select * from orders where order_id=#{orderId}
+    </select>
+
+    <select id="getOrderByNumber" parameterType="string" resultType="com.example.jerry.restaurant.pojo.Order">
+        select * from orders where order_number=#{orderNumber}
+    </select>
+
+    <update id="updateOrder">
+        update orders set customer_id=#{customerId},table_id=#{tableId},total_amount=#{totalAmount},discount=#{discount},final_amount=#{finalAmount} where order_id=#{orderId}
+    </update>
+
+    <insert id="addOrder" parameterType="com.example.jerry.restaurant.pojo.Order" useGeneratedKeys="true" keyProperty="orderId">
+        insert into orders (order_number,customer_id,table_id,order_time,total_amount,discount,final_amount)
+        values (#{orderNumber},#{customerId},#{tableId},#{orderTime},#{totalAmount},#{discount},#{finalAmount})
+    </insert>
+
+    <delete id="deleteOrder" parameterType="int">
+        delete from orders where order_id= #{orderId}
+    </delete>
+
+    <update id="updateOrderStatus">
+        UPDATE orders SET status = #{status} WHERE order_id = #{orderId}
+    </update>
+
+    <update id="checkoutOrder">
+        UPDATE orders SET total_amount = #{totalAmount}, discount = #{discount}, final_amount = #{finalAmount}, status = '已结账' WHERE order_id = #{orderId}
+    </update>
+
+    <select id="getOrdersByTimeRange" resultType="com.example.jerry.restaurant.pojo.Order">
+        SELECT * FROM orders WHERE order_time BETWEEN #{startTime} AND #{endTime}
+    </select>
+
+    <select id="getOrdersByTimeRangeAndStatus" resultType="com.example.jerry.restaurant.pojo.Order">
+        SELECT * FROM orders WHERE order_time BETWEEN #{startTime} AND #{endTime} AND status = #{status}
+    </select>
+
+    <select id="getOrderCount" resultType="int">
+        SELECT COUNT(*) FROM orders
+    </select>
+
+    <select id="getPopularDishes" resultType="map">
+        CALL get_popular_dishes(#{startTime}, #{endTime})
+    </select>
+
+    <select id="getRevenueByPeriod" resultType="map">
+        CALL get_revenue_by_period(#{startTime}, #{endTime})
+    </select>
+
+</mapper> 

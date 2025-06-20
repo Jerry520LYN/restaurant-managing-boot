@@ -8,7 +8,7 @@ import com.example.jerry.restaurant.pojo.Customer;
 import com.example.jerry.restaurant.service.CustomerService;
 
 @Service
-public class CustomerServelmpl implements CustomerService {
+public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerMapper customerMapper;

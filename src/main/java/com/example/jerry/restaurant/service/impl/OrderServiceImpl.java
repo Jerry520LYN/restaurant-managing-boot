@@ -8,17 +8,17 @@ import org.springframework.stereotype.Service;
 
 import com.example.jerry.restaurant.mapper.OrderMapper;
 import com.example.jerry.restaurant.pojo.Result;
-import com.example.jerry.restaurant.pojo.order;
+import com.example.jerry.restaurant.pojo.Order;
 import com.example.jerry.restaurant.service.OrderService;
 
 @Service
-public class OrderServicelmpl implements OrderService {
+public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderMapper orderMapper;
 
     @Override
-     public order getOrderById(int orderId){
+     public Order getOrderById(int orderId){
          return orderMapper.getOrderById(orderId);
      }
 
@@ -29,7 +29,7 @@ public class OrderServicelmpl implements OrderService {
     }
 
     @Override
-    public List<order> getAllOrders() {
+    public List<Order> getAllOrders() {
         return orderMapper.getAllOrders();
     }
 }

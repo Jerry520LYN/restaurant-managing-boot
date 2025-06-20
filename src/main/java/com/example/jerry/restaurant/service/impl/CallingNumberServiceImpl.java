@@ -7,7 +7,7 @@ import com.example.jerry.restaurant.service.CallingNumberService;
 import com.example.jerry.restaurant.pojo.CallingQueueManager;
 
 @Service
-public class CallingNumberServelmpl implements CallingNumberService {
+public class CallingNumberServiceImpl implements CallingNumberService {
     private final CallingQueueManager queueManager = new CallingQueueManager();
     private int callingIdCounter = 0;
 

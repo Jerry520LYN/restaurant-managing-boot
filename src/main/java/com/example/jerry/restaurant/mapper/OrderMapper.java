@@ -5,55 +5,36 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
-import com.example.jerry.restaurant.pojo.order;
+import com.example.jerry.restaurant.pojo.Order;
 
 @Mapper
 public interface OrderMapper {
 
-    @Select("select * from orders")
-    List<order> getAllOrders();
-    @Select("select * from orders where order_id=#{orderId}")
-    order getOrderById(int orderId);
+    List<Order> getAllOrders();
+    Order getOrderById(int orderId);
     
-    @Select("select * from orders where order_number=#{orderNumber}")
-    order getOrderByNumber(String orderNumber);
+    Order getOrderByNumber(String orderNumber);
     
-    @Update("update orders set customer_id=#{customerId},table_id=#{tableId},total_amount=#{totalAmount},discount=#{discount},final_amount=#{finalAmount} where order_id=#{orderId}")
     void updateOrder(int orderId, int customerId, int tableId, BigDecimal totalAmount, BigDecimal discount, BigDecimal finalAmount);
 
-    @Insert("insert into orders (order_number,customer_id,table_id,order_time,total_amount,discount,final_amount) values (#{orderNumber},#{customerId},#{tableId},#{orderTime},#{totalAmount},#{discount},#{finalAmount})")
-    @Options(useGeneratedKeys = true, keyProperty = "orderId")
-    int addOrder(order order);
+    int addOrder(Order order);
 
-    @Delete("delete from orders where order_id= #{orderId}")
     void deleteOrder(int orderId);
     
-    @Update("UPDATE orders SET status = #{status} WHERE order_id = #{orderId}")
     int updateOrderStatus(int orderId, String status);
     
-    @Update("UPDATE orders SET total_amount = #{totalAmount}, discount = #{discount}, final_amount = #{finalAmount}, status = '已结账' WHERE order_id = #{orderId}")
     int checkoutOrder(int orderId, BigDecimal totalAmount, BigDecimal discount, BigDecimal finalAmount);
     
-    @Select("SELECT * FROM orders WHERE order_time BETWEEN #{startTime} AND #{endTime}")
-    List<order> getOrdersByTimeRange(Date startTime, Date endTime);
+    List<Order> getOrdersByTimeRange(Date startTime, Date endTime);
     
-    @Select("SELECT * FROM orders WHERE order_time BETWEEN #{startTime} AND #{endTime} AND status = #{status}")
-    List<order> getOrdersByTimeRangeAndStatus(Date startTime, Date endTime, String status);
-    @Select("SELECT COUNT(*) FROM orders")
+    List<Order> getOrdersByTimeRangeAndStatus(Date startTime, Date endTime, String status);
     int getOrderCount();
     
     // 调用存储过程获取最受欢迎菜品
-    @Select("CALL get_popular_dishes(#{startTime}, #{endTime})")
     List<Map<String, Object>> getPopularDishes(Date startTime, Date endTime);
     
     // 调用存储过程获取营收统计
-    @Select("CALL get_revenue_by_period(#{startTime}, #{endTime})")
     Map<String, Object> getRevenueByPeriod(Date startTime, Date endTime);
 }
