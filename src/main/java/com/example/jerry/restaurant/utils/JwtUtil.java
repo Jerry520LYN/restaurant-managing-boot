@@ -3,6 +3,7 @@ package com.example.jerry.restaurant.utils;
 import java.util.Map;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import java.util.Date;
 import org.springframework.stereotype.Component;
 @Component
@@ -17,10 +18,14 @@ public class JwtUtil {
     }
 
      public static Map<String,Object> parseToken(String token) {
-        return JWT.require(Algorithm.HMAC256(SECRET))
-                .build()
-                .verify(token)
-                .getClaim("claims")
-                .asMap();
+        try {
+            return JWT.require(Algorithm.HMAC256(SECRET))
+                    .build()
+                    .verify(token)
+                    .getClaim("claims")
+                    .asMap();
+        } catch (JWTVerificationException e) {
+            return null;
+        }
     }
 }

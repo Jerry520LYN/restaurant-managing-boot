@@ -35,4 +35,7 @@ public interface OrderDetailMapper {
 
     @Select("SELECT COUNT(*) FROM order_detail WHERE order_id = #{orderId} AND dish_id = #{dishId}")
     int checkOrderDetailExists(int orderId, int dishId);
+
+    @Select("SELECT * FROM order_detail")
+    List<OrderDetail> getAllOrderDetails();
 } 

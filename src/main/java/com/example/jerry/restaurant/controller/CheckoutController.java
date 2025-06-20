@@ -12,6 +12,7 @@ import com.example.jerry.restaurant.pojo.Checkout;
 import com.example.jerry.restaurant.pojo.OrderDetail;
 import com.example.jerry.restaurant.pojo.Result;
 import com.example.jerry.restaurant.service.CheckoutService;
+import com.example.jerry.restaurant.utils.JwtUtil;
 
 @RestController
 @RequestMapping("/checkout")
@@ -23,6 +24,7 @@ public class CheckoutController {
 
     /**
      * 创建订单
+     * @param authenticity 认证信息
      * @param tableId 餐桌ID
      * @param customerId 顾客ID
      * @param peopleCount 人数
@@ -30,14 +32,19 @@ public class CheckoutController {
      */
     @PostMapping("/create-order")
     public Result<Checkout> createOrder(
+            @RequestParam String authenticity,
             @RequestParam int tableId,
             @RequestParam int customerId,
             @RequestParam int peopleCount) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         return checkoutService.createOrder(tableId, customerId, peopleCount);
     }
 
     /**
      * 添加菜品到订单
+     * @param authenticity 认证信息
      * @param orderId 订单ID
      * @param dishId 菜品ID
      * @param quantity 数量
@@ -45,27 +52,37 @@ public class CheckoutController {
      */
     @PostMapping("/add-dish")
     public Result<String> addDishToOrder(
+            @RequestParam String authenticity,
             @RequestParam int orderId,
             @RequestParam int dishId,
             @RequestParam int quantity) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         return checkoutService.addDishToOrder(orderId, dishId, quantity);
     }
 
     /**
      * 从订单中移除菜品
+     * @param authenticity 认证信息
      * @param orderId 订单ID
      * @param dishId 菜品ID
      * @return 操作结果
      */
     @DeleteMapping("/remove-dish")
     public Result<String> removeDishFromOrder(
+            @RequestParam String authenticity,
             @RequestParam int orderId,
             @RequestParam int dishId) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         return checkoutService.removeDishFromOrder(orderId, dishId);
     }
 
     /**
      * 修改菜品数量
+     * @param authenticity 认证信息
      * @param orderId 订单ID
      * @param dishId 菜品ID
      * @param quantity 新数量
@@ -73,68 +90,95 @@ public class CheckoutController {
      */
     @PutMapping("/update-dish-quantity")
     public Result<String> updateDishQuantity(
+            @RequestParam String authenticity,
             @RequestParam int orderId,
             @RequestParam int dishId,
             @RequestParam int quantity) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         return checkoutService.updateDishQuantity(orderId, dishId, quantity);
     }
 
     /**
      * 结账
+     * @param authenticity 认证信息
      * @param orderId 订单ID
      * @return 结账信息
      */
     @PostMapping("/checkout")
-    public Result<Checkout> checkout(@RequestParam int orderId) {
+    public Result<Checkout> checkout(@RequestParam String authenticity, @RequestParam int orderId) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         return checkoutService.checkout(orderId);
     }
 
     /**
      * 根据时间段查询订单
+     * @param authenticity 认证信息
      * @param startTime 开始时间
      * @param endTime 结束时间
      * @return 订单列表
      */
     @GetMapping("/orders-by-time")
     public Result<List<Checkout>> getOrdersByTimeRange(
+            @RequestParam String authenticity,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         return checkoutService.getOrdersByTimeRange(startTime, endTime);
     }
 
     /**
      * 获取订单详情
+     * @param authenticity 认证信息
      * @param orderId 订单ID
      * @return 订单详情
      */
     @GetMapping("/order-details/{orderId}")
-    public Result<List<OrderDetail>> getOrderDetails(@PathVariable int orderId) {
+    public Result<List<OrderDetail>> getOrderDetails(@RequestParam String authenticity, @PathVariable int orderId) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         return checkoutService.getOrderDetails(orderId);
     }
 
     /**
      * 获取最受欢迎菜品
+     * @param authenticity 认证信息
      * @param startTime 开始时间
      * @param endTime 结束时间
      * @return 热门菜品列表
      */
     @GetMapping("/popular-dishes")
     public Result<List<Map<String, Object>>> getPopularDishes(
+            @RequestParam String authenticity,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         return checkoutService.getPopularDishes(startTime, endTime);
     }
 
     /**
      * 获取营收统计
+     * @param authenticity 认证信息
      * @param startTime 开始时间
      * @param endTime 结束时间
      * @return 营收信息
      */
     @GetMapping("/revenue")
     public Result<Object> getRevenue(
+            @RequestParam String authenticity,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         // 这里可以调用存储过程 get_revenue_by_period
         // 暂时返回简单的实现
         List<Checkout> orders = checkoutService.getOrdersByTimeRangeAndStatus(startTime, endTime, "已结账").getData();

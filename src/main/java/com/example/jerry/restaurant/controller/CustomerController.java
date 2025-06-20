@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.jerry.restaurant.pojo.Customer;
 import com.example.jerry.restaurant.pojo.Result;
 import com.example.jerry.restaurant.service.CustomerService;
+import com.example.jerry.restaurant.utils.JwtUtil;
 
 import jakarta.validation.constraints.Pattern;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,9 +28,13 @@ public class CustomerController {
     
     @PostMapping("/addCustomer")
     public Result<Customer> addCustomer(
+        @RequestParam String authenticity,
         @RequestParam @Pattern(regexp = "^[012345].*") int id,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String name,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone){
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         Customer existingCustomer = customerService.getCustomerByPhone(phone);
         if (existingCustomer != null) {
             return Result.error("该手机号已被注册");
@@ -45,10 +50,14 @@ public class CustomerController {
 
     @PostMapping("/updateCustomer")
     public Result<Customer> updateCustomer(
+        @RequestParam String authenticity,
         @RequestParam @Pattern(regexp = "^\\S{9}$") int id,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String name,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String oldphone){
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
 
             Customer existingCustomer = customerService.getCustomerById(id);
             Customer updatedCustomer = customerService.getCustomerByPhone(oldphone);
@@ -66,17 +75,27 @@ public class CustomerController {
 
     @DeleteMapping("/deleteCustomer")
     public Result<String> deleteCustomer(
+        @RequestParam String authenticity,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone){
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         return Result.success(customerService.deleteCustomer(phone));
     }
 
     @GetMapping("/getCustomerByPhone")
-    public Result<Customer> getByPhone(@RequestParam String phone) {
+    public Result<Customer> getByPhone(@RequestParam String authenticity, @RequestParam String phone) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         return Result.success(customerService.getCustomerByPhone(phone));
     }
     
     @GetMapping("/all")
-    public Result<java.util.List<Customer>> getAllCustomers() {
+    public Result<java.util.List<Customer>> getAllCustomers(@RequestParam String authenticity) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
         return Result.success(customerService.getAllCustomers());
     }
 }
