@@ -17,6 +17,8 @@ import com.example.jerry.restaurant.pojo.order;
 @Mapper
 public interface OrderMapper {
 
+    @Select("select * from orders")
+    List<order> getAllOrders();
     @Select("select * from orders where order_id=#{orderId}")
     order getOrderById(int orderId);
     
@@ -26,7 +28,7 @@ public interface OrderMapper {
     @Update("update orders set customer_id=#{customerId},table_id=#{tableId},total_amount=#{totalAmount} where order_id=#{orderId}")
     void updateOrder(int orderId, int customerId, int tableId, BigDecimal totalAmount);
 
-    @Insert("insert into orders (order_id,customer_id,table_id,total_amount) values (#{orderId},#{customerId},#{tableId},#{totalAmount})")
+    @Insert("insert into orders (customer_id,table_id,order_time,total_amount) values (#{customerId},#{tableId},#{orderTime},#{totalAmount})")
     @Options(useGeneratedKeys = true, keyProperty = "orderId")
     int addOrder(order order);
 

@@ -1,7 +1,7 @@
 package com.example.jerry.restaurant.service.impl;
 
 import java.math.BigDecimal;
-
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -26,5 +26,10 @@ public class OrderServicelmpl implements OrderService {
     public String deleteOrder(int orderId) {
         orderMapper.deleteOrder(orderId);
         return orderMapper.getOrderById(orderId) == null ? "订单删除成功" : "删除失败";
+    }
+
+    @Override
+    public List<order> getAllOrders() {
+        return orderMapper.getAllOrders();
     }
 }

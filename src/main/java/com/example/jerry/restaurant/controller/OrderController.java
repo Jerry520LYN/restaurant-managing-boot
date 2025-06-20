@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import java.util.List;
 import com.example.jerry.restaurant.pojo.Result;
 import com.example.jerry.restaurant.pojo.order;
 import com.example.jerry.restaurant.service.OrderService;
@@ -34,5 +34,10 @@ public class OrderController {
     @GetMapping("/getOrderByID")
     public Result<order> getOrderByID(@RequestParam int orderId) {
         return Result.success(orderService.getOrderById(orderId));
+    }
+
+    @GetMapping("/all")
+    public Result<List<order>> getAllOrders() {
+        return Result.success(orderService.getAllOrders());
     }
 }

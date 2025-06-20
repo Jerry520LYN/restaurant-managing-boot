@@ -21,8 +21,8 @@ public class Customer {
         return customer_id;
     }
 
-    public void setCustomerId(String customerId) {
-        this.customer_id = customer_id;
+    public void setCustomerId(int customerId) {
+        this.customer_id = customerId;
     }
 
     public String getName() {

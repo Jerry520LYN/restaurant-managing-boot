@@ -80,6 +80,11 @@ public class CheckoutServiceImpl implements CheckoutService {
     @Transactional
     public Result<Checkout> createOrder(int tableId, int customerId, int peopleCount) {
         try {
+            // 检查人数是否有效
+            if (peopleCount <= 0) {
+                return Result.error("人数必须大于0");
+            }
+            
             // 检查餐桌是否存在且可用
             DiningTable table = diningTableMapper.getTableById(tableId);
             if (table == null) {
@@ -87,6 +92,11 @@ public class CheckoutServiceImpl implements CheckoutService {
             }
             if (!"空".equals(table.getTableStatus())) {
                 return Result.error("餐桌已被占用");
+            }
+            
+            // 检查人数是否超过餐桌容量
+            if (peopleCount > table.getCapacity()) {
+                return Result.error("人数超过餐桌容量，该餐桌最多可容纳" + table.getCapacity() + "人");
             }
 
             // 检查顾客是否存在
@@ -307,7 +317,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     public Result<List<Checkout>> getOrdersByTimeRange(Date startTime, Date endTime) {
         try {
             List<order> orders = orderMapper.getOrdersByTimeRange(startTime, endTime);
-            List<Checkout> checkouts = orders.stream().map(this::convertToCheckout).toList();
+            List<Checkout> checkouts = orders.stream().map(order -> convertToCheckout(order)).toList();
             return Result.success(checkouts);
         } catch (Exception e) {
             return Result.error("查询订单失败: " + e.getMessage());
@@ -370,7 +380,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     public Result<List<Checkout>> getOrdersByTimeRangeAndStatus(Date startTime, Date endTime, String status) {
         try {
             List<order> orders = orderMapper.getOrdersByTimeRangeAndStatus(startTime, endTime, status);
-            List<Checkout> checkouts = orders.stream().map(this::convertToCheckout).toList();
+            List<Checkout> checkouts = orders.stream().map(order -> convertToCheckout(order)).toList();
             return Result.success(checkouts);
         } catch (Exception e) {
             return Result.error("查询订单失败: " + e.getMessage());
