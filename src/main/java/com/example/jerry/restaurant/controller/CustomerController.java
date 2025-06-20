@@ -101,5 +101,7 @@ public class CustomerController {
             return Result.error("无效的token，请重新登录");
         }
         return Result.success(customerService.getAllCustomers());
+
+        //你好，这里是一个示例代码，用于获取所有客户信息。
     }
 }
