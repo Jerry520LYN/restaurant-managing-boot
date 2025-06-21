@@ -56,10 +56,11 @@
     </select>
 
     <select id="getOrderIdWithDishId" resultType="map">
-        SELECT od.order_id, od.dish_id, m.dish_name, m.price, od.quantity, od.total_price
+        SELECT o.*, od.dish_id, m.dish_name, m.price, od.quantity
         FROM order_detail od
         JOIN menu m ON od.dish_id = m.dish_id
-        WHERE od.dish_id = #{tableId}
+        JOIN orders o ON od.order_id = o.order_id
+        WHERE o.table_id = #{tableId} AND o.status = '未结账'
     </select>
 
     <!-- 查询order_summary视图获取所有订单摘要信息 -->

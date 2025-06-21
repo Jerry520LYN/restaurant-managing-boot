@@ -189,14 +189,14 @@ public class CheckoutController {
         return Result.success(Map.of("totalRevenue", totalRevenue, "orderCount", orders.size()));
     }
 
-    @GetMapping("/order-id-with-dish-id")
+    @PostMapping("/table/{tableId}")
     public Result<List<Map<String, Object>>> getOrderIdWithDishId(
             @RequestParam String authenticity,
-            @RequestParam int tableId) {
+            @PathVariable int tableId) {
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
         }
-        return checkoutService.getOrderIdWithDishId(tableId);
+        return Result.success(checkoutService.getOrderIdWithDishId(tableId).getData());
     }
     
     /**
