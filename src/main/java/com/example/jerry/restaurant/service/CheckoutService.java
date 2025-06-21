@@ -38,4 +38,6 @@ public interface CheckoutService {
     Result<List<Checkout>> getOrdersByTimeRangeAndStatus(Date startTime, Date endTime, String status);
 
     Result<List<Checkout>> getAllOrdersAsCheckout();
+
+    Result<List<Map<String, Object>>> getOrderIdWithDishId(int tableId);
 } 

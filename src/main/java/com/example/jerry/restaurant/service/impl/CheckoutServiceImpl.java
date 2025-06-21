@@ -449,4 +449,14 @@ public class CheckoutServiceImpl implements CheckoutService {
             return Result.error("获取所有订单失败: " + e.getMessage());
         }
     }
+
+    @Override
+    public Result<List<Map<String, Object>>> getOrderIdWithDishId(int tableId) {
+        try {
+            List<Map<String, Object>> orderIdWithDishId = orderMapper.getOrderIdWithDishId(tableId);
+            return Result.success(orderIdWithDishId);
+        } catch (Exception e) {
+            return Result.error("获取订单ID和菜品ID失败: " + e.getMessage());
+        }
+    }
 } 

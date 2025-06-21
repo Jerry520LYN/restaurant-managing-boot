@@ -19,8 +19,8 @@
     </update>
 
     <insert id="addOrder" parameterType="com.example.jerry.restaurant.pojo.Order" useGeneratedKeys="true" keyProperty="orderId">
-        insert into orders (order_number,customer_id,table_id,order_time,total_amount,discount,final_amount)
-        values (#{orderNumber},#{customerId},#{tableId},#{orderTime},#{totalAmount},#{discount},#{finalAmount})
+        insert into orders (order_id,customer_id,table_id,order_time,total_amount,discount,final_amount)
+        values (#{orderId},#{customerId},#{tableId},#{orderTime},#{totalAmount},#{discount},#{finalAmount})
     </insert>
 
     <delete id="deleteOrder" parameterType="int">
@@ -53,6 +53,18 @@
 
     <select id="getRevenueByPeriod" resultType="map">
         CALL get_revenue_by_period(#{startTime}, #{endTime})
+    </select>
+
+    <select id="getOrderIdWithDishId" resultType="map">
+        SELECT od.order_id, od.dish_id, m.dish_name, m.price, od.quantity, od.total_price
+        FROM order_detail od
+        JOIN menu m ON od.dish_id = m.dish_id
+        WHERE od.dish_id = #{tableId}
+    </select>
+
+    <!-- 查询order_summary视图获取所有订单摘要信息 -->
+    <select id="getAllOrderSummaries" resultType="com.example.jerry.restaurant.pojo.OrderSummary">
+        SELECT * FROM order_summary ORDER BY order_time DESC
     </select>
 
 </mapper> 

@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.jerry.restaurant.pojo.Checkout;
 import com.example.jerry.restaurant.pojo.OrderDetail;
+import com.example.jerry.restaurant.pojo.OrderSummary;
 import com.example.jerry.restaurant.pojo.Result;
 import com.example.jerry.restaurant.service.CheckoutService;
+import com.example.jerry.restaurant.mapper.OrderMapper;
 import com.example.jerry.restaurant.utils.JwtUtil;
 
 @RestController
@@ -21,6 +23,9 @@ public class CheckoutController {
 
     @Autowired
     private CheckoutService checkoutService;
+    
+    @Autowired
+    private OrderMapper orderMapper;
 
     /**
      * 创建订单
@@ -182,5 +187,35 @@ public class CheckoutController {
                 .sum();
         
         return Result.success(Map.of("totalRevenue", totalRevenue, "orderCount", orders.size()));
+    }
+
+    @GetMapping("/order-id-with-dish-id")
+    public Result<List<Map<String, Object>>> getOrderIdWithDishId(
+            @RequestParam String authenticity,
+            @RequestParam int tableId) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
+        return checkoutService.getOrderIdWithDishId(tableId);
+    }
+    
+    /**
+     * 获取所有订单详情（使用order_summary视图）
+     * @param authenticity 认证信息
+     * @return 订单摘要列表
+     */
+    @GetMapping("/allWithDetails")
+    public Result<List<OrderSummary>> getAllOrdersWithDetails(@RequestParam String authenticity) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
+        
+        try {
+            // 使用order_summary视图查询所有订单摘要信息
+            List<OrderSummary> orderSummaries = orderMapper.getAllOrderSummaries();
+            return Result.success(orderSummaries);
+        } catch (Exception e) {
+            return Result.error("获取订单详情失败: " + e.getMessage());
+        }
     }
 } 

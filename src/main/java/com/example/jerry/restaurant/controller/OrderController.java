@@ -16,6 +16,7 @@ import java.util.List;
 import com.example.jerry.restaurant.pojo.Result;
 import com.example.jerry.restaurant.pojo.Order;
 import com.example.jerry.restaurant.pojo.OrderWithDetailsDTO;
+import com.example.jerry.restaurant.pojo.OrderSummary;
 import com.example.jerry.restaurant.pojo.Checkout;
 import com.example.jerry.restaurant.service.OrderService;
 import com.example.jerry.restaurant.service.CheckoutService;
@@ -70,43 +71,17 @@ public class OrderController {
     }
 
     @GetMapping("/allWithDetails")
-    public Result<List<OrderWithDetailsDTO>> getAllOrdersWithDetails(@RequestParam String authenticity) {
+    public Result<List<OrderSummary>> getAllOrdersWithDetails(@RequestParam String authenticity) {
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
         }
         
-        List<Order> orders = orderMapper.getAllOrders();
-        List<OrderDetail> orderDetails = orderDetailMapper.getAllOrderDetails();
-        
-        List<OrderWithDetailsDTO> result = new ArrayList<>();
-        
-        for (Order order : orders) {
-            OrderWithDetailsDTO orderDTO = new OrderWithDetailsDTO(
-                order.getOrderId(),
-                order.getCustomerId(),
-                order.getTableId(),
-                order.getOrderTime(),
-                order.getTotalAmount(),
-                order.getDiscount(),
-                order.getFinalAmount(),
-                order.getStatus()
-            );
-            
-            // 为每个订单添加菜品详情
-            List<OrderWithDetailsDTO.DishDetail> dishes = new ArrayList<>();
-            for (OrderDetail detail : orderDetails) {
-                if (detail.getOrderId() == order.getOrderId()) {
-                    dishes.add(new OrderWithDetailsDTO.DishDetail(
-                        detail.getDishId(),
-                        detail.getDishName(),
-                        detail.getQuantity()
-                    ));
-                }
-            }
-            orderDTO.setDishes(dishes);
-            result.add(orderDTO);
+        try {
+            // 使用order_summary视图查询所有订单摘要信息
+            List<OrderSummary> orderSummaries = orderMapper.getAllOrderSummaries();
+            return Result.success(orderSummaries);
+        } catch (Exception e) {
+            return Result.error("获取订单详情失败: " + e.getMessage());
         }
-        
-        return Result.success(result);
     }
 }

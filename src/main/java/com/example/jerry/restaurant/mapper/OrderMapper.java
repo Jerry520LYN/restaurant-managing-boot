@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.example.jerry.restaurant.pojo.Order;
+import com.example.jerry.restaurant.pojo.OrderSummary;
 
 @Mapper
 public interface OrderMapper {
@@ -37,4 +38,9 @@ public interface OrderMapper {
     
     // 调用存储过程获取营收统计
     Map<String, Object> getRevenueByPeriod(Date startTime, Date endTime);
+
+    List<Map<String, Object>> getOrderIdWithDishId(int tableId);
+    
+    // 查询order_summary视图获取所有订单摘要信息
+    List<OrderSummary> getAllOrderSummaries();
 }
