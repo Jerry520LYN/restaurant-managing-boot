@@ -359,6 +359,8 @@ public class CheckoutServiceImpl implements CheckoutService {
             List<Map<String, Object>> result = popularDishes.stream()
                 .map(dish -> Map.of(
                     "dish_name", dish.get("dish_name"),
+                    "dish_id", dish.get("dish_id"),
+                    "description", dish.get("description"),
                     "total_quantity", dish.get("total_quantity")
                 )).toList();
             return Result.success(result);
