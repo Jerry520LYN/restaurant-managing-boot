@@ -54,14 +54,14 @@ public class CustomerController {
     @PostMapping("/updateCustomer")
     public Result<Customer> updateCustomer(
         @RequestParam String authenticity,
-        @RequestParam Integer id,
+        @RequestParam Integer customerId,
         @RequestParam @Pattern(regexp = "^\\S{5,32}$") String name,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String oldphone){
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
         }
-        int Id = (int)id;
+        int Id = (int)customerId;
         Customer updatedCustomer = customerService.getCustomerByPhone(oldphone);
         if(updatedCustomer != null)
         {

@@ -365,7 +365,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     // 根据顾客ID计算折扣
     private BigDecimal calculateDiscount(int customerId) {
         String customerIdStr = String.valueOf(customerId);
-        if (customerIdStr.length() > 0) {
+        if (customerIdStr.length() ==9) {
             char firstDigit = customerIdStr.charAt(0);
             int index = Character.getNumericValue(firstDigit);
             if (index >= 0 && index < discounts.length) {
