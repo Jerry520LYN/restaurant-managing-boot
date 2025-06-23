@@ -356,14 +356,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     public Result<List<Map<String, Object>>> getPopularDishes(Date startTime, Date endTime) {
         try {
             List<Map<String, Object>> popularDishes = orderMapper.getPopularDishes(startTime, endTime);
-            List<Map<String, Object>> result = popularDishes.stream()
-                .map(dish -> Map.of(
-                    "dish_name", dish.get("dish_name"),
-                    "dish_id", dish.get("dish_id"),
-                    "description", dish.get("description"),
-                    "total_quantity", dish.get("total_quantity")
-                )).toList();
-            return Result.success(result);
+            return Result.success(popularDishes);
         } catch (Exception e) {
             return Result.error("获取热门菜品失败: " + e.getMessage());
         }

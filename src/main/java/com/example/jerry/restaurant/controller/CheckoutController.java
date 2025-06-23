@@ -18,7 +18,7 @@ import com.example.jerry.restaurant.utils.JwtUtil;
 
 @RestController
 @RequestMapping("/checkout")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:8081", allowCredentials = "true")
 public class CheckoutController {
 
     @Autowired
@@ -156,8 +156,8 @@ public class CheckoutController {
     @GetMapping("/popular-dishes")
     public Result<List<Map<String, Object>>> getPopularDishes(
             @RequestParam String authenticity,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime) {
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime) {
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
         }

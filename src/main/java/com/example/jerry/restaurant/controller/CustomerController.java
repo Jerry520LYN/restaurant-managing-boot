@@ -54,26 +54,24 @@ public class CustomerController {
     @PostMapping("/updateCustomer")
     public Result<Customer> updateCustomer(
         @RequestParam String authenticity,
-        @RequestParam @Pattern(regexp = "^[012345].*") String id,
+        @RequestParam Integer id,
         @RequestParam @Pattern(regexp = "^\\S{5,32}$") String name,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String oldphone){
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
         }
-        int customerId = Integer.parseInt(id);
-        Customer existingCustomer = customerService.getCustomerById(customerId);
+        int Id = (int)id;
         Customer updatedCustomer = customerService.getCustomerByPhone(oldphone);
-        Customer newcustomer = customerService.getCustomerByPhone(phone);
-            if(updatedCustomer != null && newcustomer == null&& existingCustomer == null)
-            {
-                
-                customerService.updateCustomer(customerId, name, phone,oldphone);
-                Customer customer = customerService.getCustomerByPhone(phone);
-                return Result.success(customer);
-            }else
-            {
-                return Result.error("更新失败,你输入的手机号或者ID可能已经被注册");
+        if(updatedCustomer != null)
+        {
+            customerService.updateCustomer(Id,name,phone,oldphone);
+            Customer customer = customerService.getCustomerByPhone(phone);
+            return Result.success(customer);
+        }
+        else
+        {
+            return Result.error("更新失败,检查您输入的信息是否正确");
         }
     }
 

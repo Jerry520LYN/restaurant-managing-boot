@@ -24,7 +24,7 @@ public class MenuController {
     @PostMapping("/addMenu")
     public Result<Menu> addMenu(
             @RequestParam String authenticity,
-            @RequestParam @Pattern(regexp = "^\\S{5,20}$") String dishId,
+            @RequestParam Integer dishId,   
             @RequestParam @Pattern(regexp = "^\\S{1,50}$") String dishName,
             @RequestParam @Pattern(regexp = "^\\d+(\\.\\d{1,2})?$") String price,
             @RequestParam String description,
@@ -32,13 +32,12 @@ public class MenuController {
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
         }
-
-        Menu existingMenu = menuService.getMenuById(dishId);
+        Menu existingMenu = menuService.getMenuById(dishId.toString());
         if (existingMenu != null) {
             return Result.error("该菜品ID已存在");
         }
 
-        Menu addedMenu = menuService.addMenu(dishId, dishName, price, description, imageUrl);
+        Menu addedMenu = menuService.addMenu(dishId.toString(), dishName, price, description, imageUrl);
         return Result.success(addedMenu);
     }
 
@@ -46,7 +45,7 @@ public class MenuController {
     @PostMapping("/updateMenu")
     public Result<Menu> updateMenu(
             @RequestParam String authenticity,
-            @RequestParam @Pattern(regexp = "^\\S{5,20}$") String dishId,
+            @RequestParam @Pattern(regexp = "^\\S{1,20}$") String dishId,
             @RequestParam @Pattern(regexp = "^\\S{1,50}$") String dishName,
             @RequestParam @Pattern(regexp = "^\\d+(\\.\\d{1,2})?$") String price,
             @RequestParam String description,
