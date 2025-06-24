@@ -84,4 +84,12 @@ public class OrderController {
             return Result.error("获取订单详情失败: " + e.getMessage());
         }
     }
+
+    @GetMapping("/getOrderByNumber")
+    public Result<Order> getOrderByNumber(@RequestParam String authenticity, @RequestParam String orderNumber) {
+        if (JwtUtil.parseToken(authenticity) == null) {
+            return Result.error("无效的token，请重新登录");
+        }
+        return Result.success(orderService.getOrderByNumber(orderNumber));
+    }
 }

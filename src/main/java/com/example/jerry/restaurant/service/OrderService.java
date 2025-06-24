@@ -7,5 +7,7 @@ public interface OrderService {
     Order getOrderById( int orderId);
     String deleteOrder(int orderId);
     List<Order> getAllOrders();
+
+    Order getOrderByNumber(String orderNumber);
 }
 

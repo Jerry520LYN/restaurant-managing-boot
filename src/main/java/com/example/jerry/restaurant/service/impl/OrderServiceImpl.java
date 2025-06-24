@@ -32,4 +32,9 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> getAllOrders() {
         return orderMapper.getAllOrders();
     }
+
+    @Override
+    public Order getOrderByNumber(String orderNumber) {
+        return orderMapper.getOrderByNumber(orderNumber);
+    }
 }

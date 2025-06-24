@@ -5,27 +5,33 @@ import java.util.Date;
 
 public class OrderSummary {
     private int orderId;
+    private int customerId;
     private String customerName;
+    private String customerPhone;
     private int tableId;
     private Date orderTime;
     private BigDecimal totalAmount;
     private BigDecimal finalAmount;
     private BigDecimal discount;
     private String dishes;
+    private String status;
 
     public OrderSummary() {}
 
-    public OrderSummary(int orderId, String customerName, int tableId, Date orderTime, 
-                       BigDecimal totalAmount, BigDecimal finalAmount, BigDecimal discount, String dishes) {
+    public OrderSummary(int orderId, int customerId, String customerName, String customerPhone, int tableId, Date orderTime, 
+                       BigDecimal totalAmount, BigDecimal finalAmount, BigDecimal discount, String dishes, String status) {
         this.orderId = orderId;
+        this.customerId = customerId;
         this.customerName = customerName;
+        this.customerPhone = customerPhone;
         this.tableId = tableId;
         this.orderTime = orderTime;
         this.totalAmount = totalAmount;
         this.finalAmount = finalAmount;
         this.discount = discount;
         this.dishes = dishes;
-    }
+        this.status = status;
+        }
 
     // Getter and Setter methods
     public int getOrderId() {
@@ -36,12 +42,28 @@ public class OrderSummary {
         this.orderId = orderId;
     }
 
+    public int getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
+    }
+
     public String getCustomerName() {
         return customerName;
     }
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
     }
 
     public int getTableId() {
@@ -92,17 +114,28 @@ public class OrderSummary {
         this.dishes = dishes;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "OrderSummary{" +
                 "orderId=" + orderId +
+                ", customerId=" + customerId +
                 ", customerName='" + customerName + '\'' +
+                ", customerPhone='" + customerPhone + '\'' +
                 ", tableId=" + tableId +
                 ", orderTime=" + orderTime +
                 ", totalAmount=" + totalAmount +
                 ", finalAmount=" + finalAmount +
                 ", discount=" + discount +
                 ", dishes='" + dishes + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 } 
