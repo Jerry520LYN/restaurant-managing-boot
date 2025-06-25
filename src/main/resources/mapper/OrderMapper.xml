@@ -6,8 +6,12 @@
         select * from orders
     </select>
 
-    <select id="getOrderById" parameterType="int" resultType="com.example.jerry.restaurant.pojo.Order">
-        select * from orders where order_id=#{orderId}
+    <select id="getOrderById" parameterType="int" resultType="com.example.jerry.restaurant.pojo.OrderSummary">
+        CALL get_order_summary(#{orderId})
+    </select>
+
+    <select id="getOrderSummaryById" parameterType="int" resultType="com.example.jerry.restaurant.pojo.OrderSummary">
+        CALL get_order_summary(#{orderId})
     </select>
 
     <select id="getOrderByNumber" parameterType="string" resultType="com.example.jerry.restaurant.pojo.Order">
@@ -35,8 +39,8 @@
         UPDATE orders SET total_amount = #{totalAmount}, discount = #{discount}, final_amount = #{finalAmount}, status = '已结账' WHERE order_id = #{orderId}
     </update>
 
-    <select id="getOrdersByTimeRange" resultType="com.example.jerry.restaurant.pojo.Order">
-        SELECT * FROM orders WHERE order_time BETWEEN #{startTime} AND #{endTime}
+    <select id="getOrdersByTimeRange" resultType="com.example.jerry.restaurant.pojo.OrderSummary">
+        SELECT * FROM order_summary WHERE order_time BETWEEN #{startTime} AND #{endTime}
     </select>
 
     <select id="getOrdersByTimeRangeAndStatus" resultType="com.example.jerry.restaurant.pojo.Order">
@@ -56,11 +60,7 @@
     </select>
 
     <select id="getOrderIdWithDishId" resultType="map">
-        SELECT o.*, od.dish_id, m.dish_name, m.price, od.quantity
-        FROM order_detail od
-        JOIN menu m ON od.dish_id = m.dish_id
-        JOIN orders o ON od.order_id = o.order_id
-        WHERE o.table_id = #{tableId} AND o.status = '未结账'
+        CALL get_unpaid_order_summary(#{tableId});
     </select>
 
     <!-- 查询order_summary视图获取所有订单摘要信息 -->

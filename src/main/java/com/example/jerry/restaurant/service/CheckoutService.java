@@ -8,6 +8,7 @@ import java.util.Map;
 import com.example.jerry.restaurant.pojo.Checkout;
 import com.example.jerry.restaurant.pojo.OrderDetail;
 import com.example.jerry.restaurant.pojo.Result;
+import com.example.jerry.restaurant.pojo.OrderSummary;
 
 public interface CheckoutService {
     
@@ -27,7 +28,7 @@ public interface CheckoutService {
     Result<Checkout> checkout(int orderId);
     
     // 根据时间段查询订单
-    Result<List<Checkout>> getOrdersByTimeRange(Date startTime, Date endTime);
+    Result<List<OrderSummary>> getOrdersByTimeRange(Date startTime, Date endTime);
     
     // 获取订单详情
     Result<List<OrderDetail>> getOrderDetails(int orderId);
@@ -37,7 +38,7 @@ public interface CheckoutService {
 
     Result<List<Checkout>> getOrdersByTimeRangeAndStatus(Date startTime, Date endTime, String status);
 
-    Result<List<Checkout>> getAllOrdersAsCheckout();
+    Result<List<OrderSummary>> getAllOrdersAsCheckout();
 
     Result<List<Map<String, Object>>> getOrderIdWithDishId(int tableId);
 } 

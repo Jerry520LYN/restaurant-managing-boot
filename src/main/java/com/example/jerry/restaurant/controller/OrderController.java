@@ -55,7 +55,7 @@ public class OrderController {
     }
     
     @GetMapping("/getOrderByID")
-    public Result<Order> getOrderByID(@RequestParam String authenticity, @RequestParam int orderId) {
+    public Result<OrderSummary> getOrderByID(@RequestParam String authenticity, @RequestParam int orderId) {
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
         }
@@ -63,7 +63,7 @@ public class OrderController {
     }
 
     @GetMapping("/all")
-    public Result<List<Checkout>> getAllOrders(@RequestParam String authenticity) {
+    public Result<List<OrderSummary>> getAllOrders(@RequestParam String authenticity) {
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
         }

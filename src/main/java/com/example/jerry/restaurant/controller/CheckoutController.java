@@ -122,7 +122,7 @@ public class CheckoutController {
      * @return 订单列表
      */
     @GetMapping("/orders-by-time")
-    public Result<List<Checkout>> getOrdersByTimeRange(
+    public Result<List<OrderSummary>> getOrdersByTimeRange(
             @RequestParam String authenticity,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime) {

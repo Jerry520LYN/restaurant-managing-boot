@@ -1,5 +1,5 @@
 package com.example.jerry.restaurant.pojo;
-import java.sql.Date;
+import java.util.Date;
 
 import org.springframework.context.annotation.Primary;
 

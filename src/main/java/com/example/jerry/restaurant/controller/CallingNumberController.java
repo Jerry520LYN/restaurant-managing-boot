@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/callingnumber")
 @RestController
+@CrossOrigin(origins = "http://localhost:8081", allowCredentials = "true")
 public class CallingNumberController {
     @Autowired
     private CallingNumberService callingNumberService;

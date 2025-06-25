@@ -1,14 +1,11 @@
 package com.example.jerry.restaurant.service.impl;
 
-import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
-import com.example.jerry.restaurant.mapper.OrderMapper;
-import com.example.jerry.restaurant.pojo.Result;
 import com.example.jerry.restaurant.pojo.Order;
+import com.example.jerry.restaurant.mapper.OrderMapper;
+import com.example.jerry.restaurant.pojo.OrderSummary;
 import com.example.jerry.restaurant.service.OrderService;
 
 @Service
@@ -18,9 +15,9 @@ public class OrderServiceImpl implements OrderService {
     private OrderMapper orderMapper;
 
     @Override
-     public Order getOrderById(int orderId){
-         return orderMapper.getOrderById(orderId);
-     }
+    public OrderSummary getOrderById(int orderId) {
+        return orderMapper.getOrderById(orderId);
+    }
 
     @Override
     public String deleteOrder(int orderId) {

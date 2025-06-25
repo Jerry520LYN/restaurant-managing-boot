@@ -7,7 +7,7 @@ public class OrderSummary {
     private int orderId;
     private int customerId;
     private String customerName;
-    private String customerPhone;
+    private String phone;
     private int tableId;
     private Date orderTime;
     private BigDecimal totalAmount;
@@ -18,12 +18,12 @@ public class OrderSummary {
 
     public OrderSummary() {}
 
-    public OrderSummary(int orderId, int customerId, String customerName, String customerPhone, int tableId, Date orderTime, 
+    public OrderSummary(int orderId, int customerId, String customerName, String phone, int tableId, Date orderTime, 
                        BigDecimal totalAmount, BigDecimal finalAmount, BigDecimal discount, String dishes, String status) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.customerName = customerName;
-        this.customerPhone = customerPhone;
+        this.phone = phone;
         this.tableId = tableId;
         this.orderTime = orderTime;
         this.totalAmount = totalAmount;
@@ -58,12 +58,12 @@ public class OrderSummary {
         this.customerName = customerName;
     }
 
-    public String getCustomerPhone() {
-        return customerPhone;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setCustomerPhone(String customerPhone) {
-        this.customerPhone = customerPhone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public int getTableId() {
@@ -128,7 +128,7 @@ public class OrderSummary {
                 "orderId=" + orderId +
                 ", customerId=" + customerId +
                 ", customerName='" + customerName + '\'' +
-                ", customerPhone='" + customerPhone + '\'' +
+                ", phone='" + phone + '\'' +
                 ", tableId=" + tableId +
                 ", orderTime=" + orderTime +
                 ", totalAmount=" + totalAmount +

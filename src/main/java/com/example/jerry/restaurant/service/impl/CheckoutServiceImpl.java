@@ -27,7 +27,7 @@ import com.example.jerry.restaurant.pojo.Result;
 import com.example.jerry.restaurant.service.CheckoutService;
 import com.example.jerry.restaurant.pojo.CallingQueueManager;
 import com.example.jerry.restaurant.pojo.CallingNumber;
-
+import com.example.jerry.restaurant.pojo.OrderSummary;
 @Service
 public class CheckoutServiceImpl implements CheckoutService {
 
@@ -117,7 +117,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             newOrder.setOrderNumber(orderNumber);
             newOrder.setCustomerId(customerId);
             newOrder.setTableId(tableId);
-            newOrder.setOrderTime(new java.sql.Date(System.currentTimeMillis()));
+            newOrder.setOrderTime(new java.sql.Timestamp(System.currentTimeMillis()));
             newOrder.setTotalAmount(BigDecimal.ZERO);
             newOrder.setDiscount(discount);
             newOrder.setFinalAmount(BigDecimal.ZERO);
@@ -155,7 +155,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     public Result<String> addDishToOrder(int orderId, int dishId, int quantity) {
         try {
             // 检查订单是否存在
-            Order order = orderMapper.getOrderById(orderId);
+            OrderSummary order = orderMapper.getOrderById(orderId);
             if (order == null) {
                 return Result.error("订单不存在");
             }
@@ -206,7 +206,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     public Result<String> removeDishFromOrder(int orderId, int dishId) {
         try {
             // 检查订单是否存在
-            Order order = orderMapper.getOrderById(orderId);
+            OrderSummary order = orderMapper.getOrderById(orderId);
             if (order == null) {
                 return Result.error("订单不存在");
             }
@@ -236,7 +236,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     public Result<String> updateDishQuantity(int orderId, int dishId, int quantity) {
         try {
             // 检查订单是否存在
-            Order order = orderMapper.getOrderById(orderId);
+            OrderSummary order = orderMapper.getOrderById(orderId);
             if (order == null) {
                 return Result.error("订单不存在");
             }
@@ -280,7 +280,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     public Result<Checkout> checkout(int orderId) {
         try {
             // 检查订单是否存在
-            Order order = orderMapper.getOrderById(orderId);
+            OrderSummary order = orderMapper.getOrderById(orderId);
             if (order == null) {
                 return Result.error("订单不存在");
             }
@@ -332,11 +332,10 @@ public class CheckoutServiceImpl implements CheckoutService {
     }
 
     @Override
-    public Result<List<Checkout>> getOrdersByTimeRange(Date startTime, Date endTime) {
+    public Result<List<OrderSummary>> getOrdersByTimeRange(Date startTime, Date endTime) {
         try {
-            List<Order> orders = orderMapper.getOrdersByTimeRange(startTime, endTime);
-            List<Checkout> checkouts = orders.stream().map(order -> convertToCheckout(order)).toList();
-            return Result.success(checkouts);
+            List<OrderSummary> orders = orderMapper.getOrdersByTimeRange(startTime, endTime);
+            return Result.success(orders);
         } catch (Exception e) {
             return Result.error("查询订单失败: " + e.getMessage());
         }
@@ -392,7 +391,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             }
             
             // 获取订单信息以获取折扣
-            Order order = orderMapper.getOrderById(orderId);
+            OrderSummary order = orderMapper.getOrderById(orderId);
             if (order != null) {
                 BigDecimal discount = order.getDiscount();
                 BigDecimal finalAmount = totalAmount.multiply(discount);
@@ -433,11 +432,10 @@ public class CheckoutServiceImpl implements CheckoutService {
     }
 
     @Override
-    public Result<List<Checkout>> getAllOrdersAsCheckout() {
+    public Result<List<OrderSummary>> getAllOrdersAsCheckout() {
         try {
-            List<Order> orders = orderMapper.getAllOrders();
-            List<Checkout> checkouts = orders.stream().map(this::convertToCheckout).collect(Collectors.toList());
-            return Result.success(checkouts);
+            List<OrderSummary> orders = orderMapper.getAllOrderSummaries();
+            return Result.success(orders);
         } catch (Exception e) {
             return Result.error("获取所有订单失败: " + e.getMessage());
         }

@@ -31,8 +31,8 @@ public class CustomerController {
     @PostMapping("/addCustomer")
     public Result<Customer> addCustomer(
         @RequestParam String authenticity,
-        @RequestParam @Pattern(regexp = "^[012345].*") String id,  // Change int to String
-        @RequestParam @Pattern(regexp = "^\\S{5,32}$") String name,
+        @RequestParam String id,  // Change int to String
+        @RequestParam @Pattern(regexp = "^\\S{1,32}$") String name,
         @RequestParam @Pattern(regexp = "^\\S{5,16}$") String phone){
         if (JwtUtil.parseToken(authenticity) == null) {
             return Result.error("无效的token，请重新登录");
